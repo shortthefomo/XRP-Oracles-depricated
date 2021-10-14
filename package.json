@@ -4,7 +4,7 @@
   "description": "Persist Oracle data into the XRPL",
   "main": "src/index.js",
   "scripts": {
-    "dev": "DEBUG=oracle* nodemon src/index.js",
+    "dev": "DEBUG=oracle*,aggrigator* nodemon src/index.js",
     "prod": "DEBUG=oracle* node src/index.js"
   },
   "author": "Lathan Britz",

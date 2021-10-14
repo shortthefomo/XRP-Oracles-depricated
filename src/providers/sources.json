@@ -51,8 +51,8 @@
 		},
 		"fancy" : {
 			"currency": "USD",
-			"call": 1,
-			"delay": 1
+			"call": 3,
+			"delay": 2
 		}
 	}
 }

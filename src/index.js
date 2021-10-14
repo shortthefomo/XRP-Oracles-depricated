@@ -12,9 +12,9 @@ class Oracle {
   constructor() {
     let data = null
     Object.assign(this, {
-      async run() {
+      async run(group) {
         return new Promise((resolve, reject) => {
-          resolve(new aggregator().run())
+          resolve(new aggregator(group).run())
         })
         
       },
@@ -34,7 +34,7 @@ class Oracle {
             if (testing) {
                 res.header("Access-Control-Allow-Origin", "*")    
             }
-            
+
             const data = await self.fetchData()
             res.json(data)
         })
@@ -45,7 +45,9 @@ class Oracle {
                 res.header("Access-Control-Allow-Origin", "*")    
             }
 
-            const data = await self.run()
+            if (!('group' in req.query)) { return res.json({ 'error' : 'missing parameter group'}) }
+
+            const data = await self.run(req.query.group)
             log(data)
             res.json(data)
         })
