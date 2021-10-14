@@ -1,0 +1,58 @@
+{
+	"basic" : [
+		{
+			"name": "bitstamp",
+			"url": "https://www.bitstamp.net/api/v2/ticker/xrpusd/",
+			"selector": "data.last"
+		},
+		{
+			"name": "binance",
+			"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPUSDT",
+			"selector": "data.price"
+		},
+		{
+			"name": "bybit",
+			"url": "https://api.bybit.com/spot/quote/v1/ticker/price?symbol=XRPUSDT",
+			"selector": "data.result.price"
+		}
+	],
+	"fancy" : [
+		{
+			"name": "bitstamp",
+			"url": "https://www.bitstamp.net/api/v2/ticker/xrpusd/",
+			"selector": "data.last"
+		},
+		{
+			"name": "binance",
+			"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPUSDT",
+			"selector": "data.price"
+		},
+		{
+			"name": "hitbtc",
+			"url": "https://api.hitbtc.com/api/2/public/ticker/XRPUSDT",
+			"selector": "data.last"
+		},
+		{
+			"name": "kraken",
+			"url": "https://api.kraken.com/0/public/Ticker?pair=XRPUSD",
+			"selector": "data.result.XXRPZUSD.c[0]"
+		},
+		{
+			"name": "bybit",
+			"url": "https://api.bybit.com/spot/quote/v1/ticker/price?symbol=XRPUSDT",
+			"selector": "data.result.price"
+		}
+	],
+	"config" : {
+		"basic" : {
+			"currency": "USD",
+			"call": 1,
+			"delay": 1
+		},
+		"fancy" : {
+			"currency": "USD",
+			"call": 1,
+			"delay": 1
+		}
+	}
+}
