@@ -1,3 +1,5 @@
+'use strict'
+
 const app = require('express')()
 const express = require('express')
 const path = require( 'path')
@@ -5,6 +7,8 @@ const server = require('http').createServer()
 const fs = require( 'fs')
 const debug = require( 'debug')
 const aggregator = require('xrp-price-aggregator')
+const stats = require('stats-analysis')
+const currency = require('./publishers/currency.js') 
 
 const log = debug('oracle:main')
 
@@ -12,9 +16,9 @@ class Oracle {
   constructor() {
     let data = null
     Object.assign(this, {
-      async run(group) {
+      async run(oracle) {
         return new Promise((resolve, reject) => {
-          resolve(new aggregator(group).run())
+          resolve(new aggregator(oracle).run())
         })
         
       },
@@ -45,12 +49,19 @@ class Oracle {
                 res.header("Access-Control-Allow-Origin", "*")    
             }
 
-            if (!('group' in req.query)) { return res.json({ 'error' : 'missing parameter group'}) }
+            if (!('oracle' in req.query)) { return res.json({ 'error' : 'missing parameter oracle'}) }
 
-            const data = await self.run(req.query.group)
+            const data = await self.run(req.query.oracle)
             log(data)
+            if (data.type == 'alt' || data.type == 'currency') {
+              self.publish(data)
+            }
             res.json(data)
         })
+      },
+      publish(data) {
+        const publisher = new currency()
+        publisher.publish(data)
       }
     })
   }
@@ -59,7 +70,6 @@ class Oracle {
 const oracle = new Oracle()
 oracle.createEndPoint(app, true)
 //oracle.run()
-
 
 
 server.on('request', app)

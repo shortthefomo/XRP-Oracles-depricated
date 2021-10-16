@@ -4,7 +4,7 @@
   "description": "Persist Oracle data into the XRPL",
   "main": "src/index.js",
   "scripts": {
-    "dev": "DEBUG=oracle*,aggrigator* nodemon src/index.js",
+    "dev": "DEBUG=oracle* nodemon src/index.js",
     "prod": "DEBUG=oracle* node src/index.js"
   },
   "author": "Lathan Britz",
@@ -15,7 +15,10 @@
   "dependencies": {
     "debug": "^4.3.1",
     "dotenv": "^8.2.0",
+    "rippled-ws-client": "^1.6.5",
+    "rippled-ws-client-sign": "^0.3.0",
     "url": "^0.11.0",
-    "xrp-price-aggregator": "https://github.com/lathanbritz/XRP-Price-Aggregator.git#reroll"
+    "xrp-price-aggregator": "https://github.com/lathanbritz/XRP-Price-Aggregator.git#reroll",
+    "xrpl-client": "^1.9.2"
   }
 }
