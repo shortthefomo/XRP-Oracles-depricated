@@ -1,6 +1,5 @@
 'use strict'
 
-const { XrplClient } = require('xrpl-client')
 const lib = require('xrpl-accountlib')
 const debug = require( 'debug')
 const dotenv = require('dotenv')
@@ -15,18 +14,16 @@ const timeout = setTimeout(() => {
 module.exports = class CurrencyPublisher {
   constructor() {
     Object.assign(this, {
-      async publish(data) {
+      async publish(Connection, data, sequence) {
         if (!('rawResultsNamed' in data)) { return }
         dotenv.config()
-
-        const Connection = new XrplClient(process.env.ENDPOINT)
 
         log(`START (timeout at ${timeoutSec}), GO GET DATA!`)
 
         log('GOT DATA')
         log({data})
 
-        await Connection
+        // await Connection
 
         const Memos = Object.keys(data.rawResultsNamed).map(k => {
           return {
@@ -38,18 +35,24 @@ module.exports = class CurrencyPublisher {
           }
         })
 
-        const { account_data } = await Connection.send({ command: 'account_info', account: process.env.XRPL_SOURCE_ACCOUNT })
+        // const { account_data } = await Connection.send({ command: 'account_info', account: process.env.XRPL_SOURCE_ACCOUNT })
 
+        let filteredMedian = String(data.filteredMedian)
+        const exp = filteredMedian.split('.')
+        if (exp.length == 2) {
+          filteredMedian = exp[0] + '.' + exp[1].substring(0, 10)
+        }
+        
         const Tx = {
           TransactionType: 'TrustSet',
           Account: process.env.XRPL_SOURCE_ACCOUNT,
           Fee: '10',
           Flags: 131072,
-          Sequence: account_data.Sequence,
+          Sequence: sequence,
           LimitAmount: {
             currency: data.symbol.substring('XRP/'.length),
             issuer: process.env.XRPL_DESTINATION_ACCOUNT,
-            value: String(data.filteredMedian)
+            value: filteredMedian
           },
           Memos
         }
@@ -57,8 +60,6 @@ module.exports = class CurrencyPublisher {
 
         log('SIGN & SUBMIT')
         try {
-          
-
           const keypair = lib.derive.familySeed(process.env.XRPL_SOURCE_ACCOUNT_SECRET)
           const {signedTransaction} = lib.sign(Tx, keypair)
           const Signed = await Connection.send({ command: 'submit', 'tx_blob': signedTransaction })
@@ -68,24 +69,8 @@ module.exports = class CurrencyPublisher {
           log(`Error signing / submitting: ${e.message}`)
         }
 
-        if (typeof process.env.ENDPOINT_TESTNET !== 'undefined') {
-          log('SIGN & SUBMIT TESTNET')
-
-          try {
-            const ConnectionTestnet = new XrplClient(process.env.ENDPOINT_TESTNET)
-            const keypair = lib.derive.familySeed(process.env.XRPL_SOURCE_ACCOUNT_SECRET)
-            const {signedTransaction} = lib.sign(Tx, keypair)
-            const SignedTestnet = await ConnectionTestnet.send({ command: 'submit', 'tx_blob': signedTransaction })
-
-            log({SignedTestnet})
-          } catch (e) {
-            log(`Error signing / submitting @ Testnet: ${e.message}`)
-          }
-          ;(await ConnectionTestnet).close()
-        }
-
         log('WRAP UP')
-        ;(await Connection).close()
+        //;(await Connection).close()
         clearTimeout(timeout)
       }
     })
