@@ -1,13 +1,13 @@
 'use strict'
 
-//const { XrplClient } = require('xrpl-client')
+const { XrplClient } = require('xrpl-client')
+const lib = require('xrpl-accountlib')
 const Conn = require('rippled-ws-client')
 const Sign = require('rippled-ws-client-sign')
 const debug = require( 'debug')
 const dotenv = require('dotenv')
 
 const log = debug('oracle:publish')
-
 const timeoutSec = (process.env.TIMEOUT_SECONDS || 55)
 const timeout = setTimeout(() => {
   log(`Error, killed by timeout after ${timeoutSec} seconds`)
@@ -20,11 +20,10 @@ module.exports = class CurrencyPublisher {
       async publish(data) {
         if (!('rawResultsNamed' in data)) { return }
         dotenv.config()
-        //const Connection = new XrplClient(process.env.ENDPOINT)
-        const Connection = new Conn(process.env.ENDPOINT)
+
+        const Connection = new XrplClient(process.env.ENDPOINT)
 
         log(`START (timeout at ${timeoutSec}), GO GET DATA!`)
-
 
         log('GOT DATA')
         log({data})
@@ -41,11 +40,14 @@ module.exports = class CurrencyPublisher {
           }
         })
 
+        const { account_data } = await Connection.send({ command: 'account_info', account: process.env.XRPL_SOURCE_ACCOUNT })
+
         const Tx = {
           TransactionType: 'TrustSet',
           Account: process.env.XRPL_SOURCE_ACCOUNT,
           Fee: '10',
           Flags: 131072,
+          Sequence: account_data.Sequence,
           LimitAmount: {
             currency: data.symbol.substring('XRP/'.length),
             issuer: process.env.XRPL_DESTINATION_ACCOUNT,
@@ -57,14 +59,11 @@ module.exports = class CurrencyPublisher {
 
         log('SIGN & SUBMIT')
         try {
-          const request = {
-            id: 2,
-            command: 'sign',
-            tx_json: Tx,
-            secret: process.env.XRPL_SOURCE_ACCOUNT_SECRET
-          }
-          //const Signed = await Connection.send(request)
-          const Signed = await new Sign(Object.assign({}, Tx), process.env.XRPL_SOURCE_ACCOUNT_SECRET, await Connection)
+          
+
+          const keypair = lib.derive.familySeed(process.env.XRPL_SOURCE_ACCOUNT_SECRET)
+          const {signedTransaction} = lib.sign(Tx, keypair)
+          const Signed = await Connection.send({ command: 'submit', 'tx_blob': signedTransaction })
 
           log({Signed})
         } catch (e) {
@@ -73,16 +72,13 @@ module.exports = class CurrencyPublisher {
 
         if (typeof process.env.ENDPOINT_TESTNET !== 'undefined') {
           log('SIGN & SUBMIT TESTNET')
-          const request = {
-            id: 'XRP Oracle',
-            command: 'sign',
-            tx_json: Tx,
-            secret: process.env.XRPL_SOURCE_ACCOUNT_SECRET
-          }
-          //const ConnectionTestnet = await new XrplClient(process.env.ENDPOINT_TESTNET)
-          const SignedTestnet = await new Sign(Object.assign({}, Tx), process.env.XRPL_SOURCE_ACCOUNT_SECRET, await ConnectionTestnet)
+
           try {
-            const SignedTestnet = await ConnectionTestnet.send(request)
+            const ConnectionTestnet = new XrplClient(process.env.ENDPOINT_TESTNET)
+            const keypair = lib.derive.familySeed(process.env.XRPL_SOURCE_ACCOUNT_SECRET)
+            const {signedTransaction} = lib.sign(Tx, keypair)
+            const SignedTestnet = await ConnectionTestnet.send({ command: 'submit', 'tx_blob': signedTransaction })
+
             log({SignedTestnet})
           } catch (e) {
             log(`Error signing / submitting @ Testnet: ${e.message}`)
