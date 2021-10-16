@@ -2,8 +2,6 @@
 
 const { XrplClient } = require('xrpl-client')
 const lib = require('xrpl-accountlib')
-const Conn = require('rippled-ws-client')
-const Sign = require('rippled-ws-client-sign')
 const debug = require( 'debug')
 const dotenv = require('dotenv')
 
