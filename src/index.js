@@ -23,11 +23,11 @@ class Oracle extends EventEmitter {
     super()
     dotenv.config()
 
-    const fifo = []
+    let fifo = []
+    let retry = []
     const client = new XrplClient(process.env.ENDPOINT)
     const pubsub = new PubSubManager()
     const socket = new SocketServer()
-    let data = null
     let oracleData = []
 
     Object.assign(this, {
@@ -38,7 +38,7 @@ class Oracle extends EventEmitter {
       },
       async start() {
         pubsub.start()
-        socket.socketServer(server, pubsub)
+        socket.start(server, pubsub)
         this.startEventLoop()
         this.listenEventLoop()
 
@@ -51,7 +51,7 @@ class Oracle extends EventEmitter {
           }
         })
       },
-      listenEventLoop(interval = 30000) {
+      listenEventLoop(interval = 20000) {
         const  self = this
         setInterval(function() {
           self.emit('oracle-fetch')
@@ -63,7 +63,7 @@ class Oracle extends EventEmitter {
           let { data }  = await axios.get('http://localhost:5000/api/feed/data')
           const keys = Object.keys(data)
           for(let oracle of keys) {
-            log(oracle)
+            // log(oracle)
             self.processData(oracle)
           }
         })
@@ -109,14 +109,14 @@ class Oracle extends EventEmitter {
         })
       },
       sendSocket(data) {
-        const oracle = data.type
+        const oracle = data.symbol
         if (oracle in oracleData) {
           data.previous = oracleData[oracle].previous
         }
 
-        pubsub.route(data, data.type)
-        log('pubsub: ' + data.symbol)
-        
+        log('pubsub: ' + data.symbol + ':' + data.type)
+        pubsub.route(data, 'currency')
+
         if (!(oracle in oracleData)) {
           oracleData[oracle] = {
             previous : 0
@@ -128,7 +128,7 @@ class Oracle extends EventEmitter {
 
         log('PUBLISH DATA')
         log('fifo length: ' + fifo.length)
-        const retry = []
+
         while(fifo.length > 0) {
           const publisher = new currency()
           const data = fifo.pop()
@@ -136,9 +136,11 @@ class Oracle extends EventEmitter {
           const result = publisher.publish(client, data, sequence, this)
           sequence++
         }
+        fifo = retry
+        retry = []
       },
       retryPublish(data) {
-        fifo.push(data)
+        retry.push(data)
       }
     })  
   }

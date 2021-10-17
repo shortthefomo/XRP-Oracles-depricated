@@ -12,11 +12,11 @@ module.exports = class PubSubManager extends EventEmitter {
 
     const channels = {
       currency: {
-        message: '',
+        message: [],
         subscribers: []
       },
       alt: {
-        message: '',
+        message: [],
         subscribers: []
       },
     }
@@ -34,13 +34,12 @@ module.exports = class PubSubManager extends EventEmitter {
       },
       publish(channel, message) {
         try {
-          channels[channel].message = message
+          channels[channel].message.push(message)
         } catch (error) {
           log(error)
         }
       },
       broker() {
-        const self = this
         for (const channel in channels) {
           if (channels.hasOwnProperty(channel)) {
             const channelObj = channels[channel]
@@ -48,12 +47,14 @@ module.exports = class PubSubManager extends EventEmitter {
               if (channelObj.message) {
                 channelObj.subscribers.forEach(subscriber => {
 
-                  const string =  JSON.stringify(channelObj.message)
-                  subscriber.send('{"' + channel +'": ' + string + '}')
-                  //log('{"' + channel +'": ' + string + '}')                          
+                  for (var i = 0; i < channelObj.message.length; i++) {
+                    const string =  JSON.stringify(channelObj.message[i])
+                    subscriber.send('{"' + channel +'": ' + string + '}')
+                    //log('{"' + channel +'": ' + string + '}')
+                  }
                 })
 
-                channelObj.message = '';
+                channelObj.message = [];
               }   
             }
           }

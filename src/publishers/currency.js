@@ -64,12 +64,9 @@ module.exports = class CurrencyPublisher {
           const {signedTransaction} = lib.sign(Tx, keypair)
           const Signed = await Connection.send({ command: 'submit', 'tx_blob': signedTransaction })
 
-          // log({Signed})
+          log({Signed})
           if (Signed.engine_result != 'tesSUCCESS') {
             retry = this.resubmitTx(data, oracle)  
-          }
-          else {
-            log('tesSUCCESSL ' + data.symbol)
           }
         } catch (e) {
           errlog(`Error signing / submitting: ${e.message}`)

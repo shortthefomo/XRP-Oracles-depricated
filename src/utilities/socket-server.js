@@ -11,21 +11,18 @@ module.exports = class SocketServer extends EventEmitter {
     super()
 
     Object.assign(this, {
-      socketServer(server, pubsub) {
+      start(server, pubsub) {
         const wss = new WebSocketServer({ server: server })
         wss.on('connection', (ws, req) => {
           ws.on('message', (data) => {
             try {
               if (pubsub == null) { return }
-              //if (data.charAt(0) != '{') { return } 
               const json = JSON.parse(data, true)
-
               switch (json.request) {
                 case 'PUBLISH':
                   pubsub.publish(ws, json.channel, json.message)
                   break
                 case 'SUBSCRIBE':
-
                   if (process.env.ALLOW_CORS) {
                     log('client subscribed to: ' + json.channel)
                     pubsub.subscribe(ws, json.channel)
@@ -42,7 +39,6 @@ module.exports = class SocketServer extends EventEmitter {
             } catch (error) {
               log(error)
             }
-
           })
           ws.on('close', () => {
             log('Stopping client connection.')
