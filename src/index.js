@@ -39,7 +39,6 @@ class Oracle {
         })
       },
       async fetchData() {
-        log('fetchData')
         return new Promise((resolve, reject) => {
           fs.readFile(path.join(__dirname + '/providers/sources.json'), async (err, data) => {
             if (err) throw err
@@ -68,9 +67,8 @@ class Oracle {
             if (!('oracle' in req.query)) { return res.json({ 'error' : 'missing parameter oracle'}) }
 
             const data = await self.run(req.query.oracle)
-            // log(data)
+            log('dataSubmission: ' + req.query.oracle)
             if (data.type == 'alt' || data.type == 'currency') {
-              //fifo.unshift(data)
               fifo.push(data)
             }
             res.json(data)
@@ -82,7 +80,7 @@ class Oracle {
         log('fifo length: ' + fifo.length)
         while(fifo.length > 0) {
           const publisher = new currency()
-          const result = publisher.publish(Client, fifo.pop(), sequence)
+          const result = publisher.publish(Client, fifo.pop(), sequence, fifo)
           sequence++
         }
         // const publisher = new currency()

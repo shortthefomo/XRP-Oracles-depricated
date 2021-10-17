@@ -14,7 +14,7 @@ const timeout = setTimeout(() => {
 module.exports = class CurrencyPublisher {
   constructor() {
     Object.assign(this, {
-      async publish(Connection, data, sequence) {
+      async publish(Connection, data, sequence, fifo) {
         if (!('rawResultsNamed' in data)) { return }
         dotenv.config()
 
@@ -67,6 +67,15 @@ module.exports = class CurrencyPublisher {
           log({Signed})
         } catch (e) {
           log(`Error signing / submitting: ${e.message}`)
+
+          // make sure a stuck transaction at somepoint falls off our queue
+          if (!('maxRetry' in data)) {
+            data.maxRetry = 0
+          }
+          data.maxRetry++
+          if (data.maxRetry <= 5) {
+            fifo.unshift(data)  
+          }
         }
 
         log('WRAP UP')
