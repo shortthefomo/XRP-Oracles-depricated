@@ -5,6 +5,8 @@ const debug = require( 'debug')
 const dotenv = require('dotenv')
 
 const log = debug('oracle:publish')
+const errlog = debug('oracle:publish:error')
+
 const timeoutSec = (process.env.TIMEOUT_SECONDS || 55)
 const timeout = setTimeout(() => {
   log(`Error, killed by timeout after ${timeoutSec} seconds`)
@@ -23,8 +25,6 @@ module.exports = class CurrencyPublisher {
         log('GOT DATA')
         log({data})
 
-        // await Connection
-
         const Memos = Object.keys(data.rawResultsNamed).map(k => {
           return {
             Memo: {
@@ -34,8 +34,6 @@ module.exports = class CurrencyPublisher {
             }
           }
         })
-
-        // const { account_data } = await Connection.send({ command: 'account_info', account: process.env.XRPL_SOURCE_ACCOUNT })
 
         let filteredMedian = String(data.filteredMedian)
         const exp = filteredMedian.split('.')
@@ -65,22 +63,29 @@ module.exports = class CurrencyPublisher {
           const Signed = await Connection.send({ command: 'submit', 'tx_blob': signedTransaction })
 
           log({Signed})
+          if (Signed.engine_result != 'tesSUCCESS') {
+            this.resubmitTx(fifo, data)  
+          }
         } catch (e) {
-          log(`Error signing / submitting: ${e.message}`)
-
-          // make sure a stuck transaction at somepoint falls off our queue
-          if (!('maxRetry' in data)) {
-            data.maxRetry = 0
-          }
-          data.maxRetry++
-          if (data.maxRetry <= 5) {
-            fifo.unshift(data)  
-          }
+          errlog(`Error signing / submitting: ${e.message}`)
+          this.resubmitTx(fifo, data)
         }
 
         log('WRAP UP')
         //;(await Connection).close()
         clearTimeout(timeout)
+      },
+      resubmitTx(fifo, data) {
+        // make sure a stuck transaction at somepoint falls off our queue
+        if (!('maxRetry' in data)) {
+          data.maxRetry = 0
+        }
+        data.maxRetry++
+        if (data.maxRetry <= 5) {
+          fifo.unshift(data)
+          errlog('-------------------------> tx failed adding back to queue')
+          errlog(data) 
+        }
       }
     })
   }
