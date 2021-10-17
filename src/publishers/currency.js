@@ -5,7 +5,7 @@ const debug = require( 'debug')
 const dotenv = require('dotenv')
 
 const log = debug('oracle:publish')
-const errlog = debug('oracle:publish:error')
+const errlog = debug('oracle:error')
 
 const timeoutSec = (process.env.TIMEOUT_SECONDS || 55)
 const timeout = setTimeout(() => {
@@ -16,7 +16,9 @@ const timeout = setTimeout(() => {
 module.exports = class CurrencyPublisher {
   constructor() {
     Object.assign(this, {
-      async publish(Connection, data, sequence, fifo) {
+      async publish(Connection, data, sequence, oracle) {
+        let retry = null
+
         if (!('rawResultsNamed' in data)) { return }
         dotenv.config()
 
@@ -54,7 +56,7 @@ module.exports = class CurrencyPublisher {
           },
           Memos
         }
-        log(Tx)
+        // log(Tx)
 
         log('SIGN & SUBMIT')
         try {
@@ -62,29 +64,31 @@ module.exports = class CurrencyPublisher {
           const {signedTransaction} = lib.sign(Tx, keypair)
           const Signed = await Connection.send({ command: 'submit', 'tx_blob': signedTransaction })
 
-          log({Signed})
+          // log({Signed})
           if (Signed.engine_result != 'tesSUCCESS') {
-            this.resubmitTx(fifo, data)  
+            retry = this.resubmitTx(data, oracle)  
+          }
+          else {
+            log('tesSUCCESSL ' + data.symbol)
           }
         } catch (e) {
           errlog(`Error signing / submitting: ${e.message}`)
-          this.resubmitTx(fifo, data)
+          retry = this.resubmitTx(data, oracle)
         }
 
         log('WRAP UP')
-        //;(await Connection).close()
+
         clearTimeout(timeout)
       },
-      resubmitTx(fifo, data) {
+      resubmitTx(data, oracle) {
         // make sure a stuck transaction at somepoint falls off our queue
         if (!('maxRetry' in data)) {
           data.maxRetry = 0
         }
         data.maxRetry++
         if (data.maxRetry <= 5) {
-          fifo.unshift(data)
-          errlog('-------------------------> tx failed adding back to queue')
-          errlog(data) 
+          oracle.retryPublish(data)
+          errlog('RESUBMIT: ' + data.symbol)
         }
       }
     })

@@ -38,7 +38,7 @@ module.exports = class PubSubManager extends EventEmitter {
         } catch (error) {
           log(error)
         }
-    },
+      },
       broker() {
         const self = this
         for (const channel in channels) {
@@ -49,7 +49,8 @@ module.exports = class PubSubManager extends EventEmitter {
                 channelObj.subscribers.forEach(subscriber => {
 
                   const string =  JSON.stringify(channelObj.message)
-                  subscriber.send('{"' + channel +'": ' + string + '}')                               
+                  subscriber.send('{"' + channel +'": ' + string + '}')
+                  //log('{"' + channel +'": ' + string + '}')                          
                 })
 
                 channelObj.message = '';

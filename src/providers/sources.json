@@ -129,7 +129,7 @@
 	},
 	"btc" : {
 		"config": {
-			"type": "alts",
+			"type": "alt",
 			"symbol": "XRP/BTC",
 			"call": 1,
 			"delay": 0.5
