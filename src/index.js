@@ -51,7 +51,7 @@ class Oracle extends EventEmitter {
           }
         })
       },
-      listenEventLoop(interval = 20000) {
+      listenEventLoop(interval = 30000) {
         const  self = this
         setInterval(function() {
           self.emit('oracle-fetch')
@@ -136,8 +136,9 @@ class Oracle extends EventEmitter {
           const result = publisher.publish(client, data, sequence, this)
           sequence++
         }
-        fifo = retry
-        retry = []
+        while(retry.length > 0) {
+          fifo.unshift(retry.pop())
+        }
       },
       retryPublish(data) {
         retry.push(data)

@@ -54,7 +54,7 @@ module.exports = class PubSubManager extends EventEmitter {
                   }
                 })
 
-                channelObj.message = [];
+                channelObj.message = []
               }   
             }
           }
