@@ -47,6 +47,7 @@ class Oracle extends EventEmitter {
         client.on('ledger', async (event) =>  {
           if (event.type == 'ledgerClosed') {
             const { account_data } = await client.send({ command: 'account_info', account: process.env.XRPL_SOURCE_ACCOUNT })
+            log(account_data)
             this.publish(account_data.Sequence)
           }
         })
@@ -139,6 +140,8 @@ class Oracle extends EventEmitter {
         while(retry.length > 0) {
           fifo.unshift(retry.pop())
         }
+        fifo = retry
+        retry = []
       },
       retryPublish(data) {
         retry.push(data)
