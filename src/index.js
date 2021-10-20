@@ -25,6 +25,8 @@ class Oracle extends EventEmitter {
 
     let fifo = []
     let retry = []
+    const baseUrl = 'http://localhost:6000'
+    const feedUrl = baseUrl + '/api/feed/data'
     const client = new XrplClient(process.env.ENDPOINT)
     const pubsub = new PubSubManager()
     const socket = new SocketServer()
@@ -33,7 +35,7 @@ class Oracle extends EventEmitter {
     Object.assign(this, {
       async run(oracle) {
         return new Promise((resolve, reject) => {
-          resolve(new aggregator(oracle).run())
+          resolve(new aggregator(feedUrl, oracle).run())
         })
       },
       async start() {
@@ -61,7 +63,7 @@ class Oracle extends EventEmitter {
       startEventLoop() {
         const self = this
         this.addListener('oracle-fetch', async function() {
-          let { data }  = await axios.get('http://localhost:5000/api/feed/data')
+          let { data }  = await axios.get(feedUrl)
           const keys = Object.keys(data)
           for(let oracle of keys) {
             // log(oracle)
@@ -72,7 +74,7 @@ class Oracle extends EventEmitter {
       async processData(oracle) {
         if (oracle == null) { return {} }
 
-        let { data } = await axios.get('http://localhost:5000/api/aggregator?oracle=' + oracle)
+        let { data } = await axios.get(baseUrl + '/api/aggregator?oracle=' + oracle)
       },
       async fetchData() {
         return new Promise((resolve, reject) => {
@@ -127,8 +129,7 @@ class Oracle extends EventEmitter {
       },
       async publish(sequence) {
 
-        log('PUBLISH DATA')
-        log('fifo length: ' + fifo.length)
+        log('PUBLISH DATA fifo length: ' + fifo.length)
 
         while(fifo.length > 0) {
           const publisher = new currency()
@@ -154,6 +155,6 @@ oracle.start()
 
 
 server.on('request', app)
-server.listen(5000, () => {
-   log('Server listening on http://localhost:5000')
+server.listen(6000, () => {
+   log('Server listening')
 })

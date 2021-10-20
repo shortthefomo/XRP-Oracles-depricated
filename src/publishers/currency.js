@@ -7,12 +7,6 @@ const dotenv = require('dotenv')
 const log = debug('oracle:publish')
 const errlog = debug('oracle:error')
 
-const timeoutSec = (process.env.TIMEOUT_SECONDS || 55)
-const timeout = setTimeout(() => {
-  log(`Error, killed by timeout after ${timeoutSec} seconds`)
-  process.exit(1)
-}, timeoutSec * 1000)
-
 module.exports = class CurrencyPublisher {
   constructor() {
     Object.assign(this, {
@@ -21,8 +15,6 @@ module.exports = class CurrencyPublisher {
 
         if (!('rawResultsNamed' in data)) { return }
         dotenv.config()
-
-        log(`START (timeout at ${timeoutSec}), GO GET DATA!`)
 
         log('GOT DATA')
         log({data})
@@ -64,18 +56,18 @@ module.exports = class CurrencyPublisher {
           const {signedTransaction} = lib.sign(Tx, keypair)
           const Signed = await Connection.send({ command: 'submit', 'tx_blob': signedTransaction })
 
-          log({Signed})
+          // log({Signed})
           if (Signed.engine_result != 'tesSUCCESS') {
             retry = this.resubmitTx(data, oracle)  
+          }
+          else {
+            log('Signed ' + data.symbol)
           }
         } catch (e) {
           errlog(`Error signing / submitting: ${e.message}`)
           retry = this.resubmitTx(data, oracle)
         }
-
         log('WRAP UP')
-
-        clearTimeout(timeout)
       },
       resubmitTx(data, oracle) {
         // make sure a stuck transaction at somepoint falls off our queue
@@ -83,7 +75,7 @@ module.exports = class CurrencyPublisher {
           data.maxRetry = 0
         }
         data.maxRetry++
-        if (data.maxRetry <= 5) {
+        if (data.maxRetry <= 3) {
           oracle.retryPublish(data)
           errlog('RESUBMIT: ' + data.symbol)
         }
