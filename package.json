@@ -17,6 +17,7 @@
     "debug": "^4.3.1",
     "dotenv": "^8.2.0",
     "events": "^3.3.0",
+    "express": "^4.17.1",
     "rippled-ws-client": "^1.6.5",
     "rippled-ws-client-sign": "^0.3.0",
     "url": "^0.11.0",
