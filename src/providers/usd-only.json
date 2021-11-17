@@ -1,0 +1,96 @@
+{
+	"basic" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/USD",
+			"call": 1,
+			"delay": 1
+		},
+		"data": [
+			{
+				"name": "bitstamp:usd",
+				"url": "https://www.bitstamp.net/api/v2/ticker/xrpusd/",
+				"selector": "data.last",
+				"invert": false
+			},
+			{
+				"name": "binance:usdt",
+				"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPUSDT",
+				"selector": "data.price",
+				"invert": false
+			},
+			{
+				"name": "binance:busd",
+				"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPBUSD",
+				"selector": "data.price",
+				"invert": false
+			},
+			{
+				"name": "bybit:usdt",
+				"url": "https://api.bybit.com/spot/quote/v1/ticker/price?symbol=XRPUSDT",
+				"selector": "data.result.price",
+				"invert": false
+			},
+			{
+				"name": "kraken:usd",
+				"url": "https://api.kraken.com/0/public/Ticker?pair=XRPUSD",
+				"selector": "data.result.XXRPZUSD.c[0]",
+				"invert": false
+			},
+			{
+				"name": "huobi:usdt",
+				"url": "https://api.huobi.pro/market/detail/merged?symbol=xrpusdt",
+				"selector": "data.tick.close",
+				"invert": false
+			},
+			{
+				"name": "bithumb:usdt",
+				"url": "https://global-openapi.bithumb.pro/openapi/v1/spot/ticker?symbol=XRP-USDT",
+				"selector": "data.data[0].c",
+				"invert": false
+			},
+			{
+				"name": "upbit:usdt",
+				"url": "https://api.upbit.com/v1/ticker?markets=USDT-XRP",
+				"selector": "data[0].trade_price",
+				"invert": false
+			},
+			{
+				"name": "hitbtc:usdt",
+				"url": "https://api.hitbtc.com/api/2/public/ticker/XRPUSDT",
+				"selector": "data.last",
+				"invert": false
+			},
+			{
+				"name": "btse:usd",
+				"url": "https://api.btse.com/spot/api/v3.2/price?symbol=XRP-USD",
+				"selector": "data[0].lastPrice",
+				"invert": false
+			},
+			{
+				"name": "bitfinex:usd",
+				"url": "https://api-pub.bitfinex.com/v2/ticker/tXRPUSD",
+				"selector": "data[6]",
+				"invert": false
+			},
+			{
+				"name": "independent-reserve:usd",
+				"url": "https://api.independentreserve.com/Public/GetMarketSummary?primaryCurrencyCode=xrp&secondaryCurrencyCode=usd",
+				"selector": "data.LastPrice",
+				"invert": false
+			},
+			{
+				"name": "bithash:usd",
+				"url": "https://www.bithash.net/api/v4/ticker",
+				"selector": "data.XRP_USD.last_price",
+				"invert": false
+			},
+			{
+				"name": "ftx:usd",
+				"url": "https://ftx.com/api/markets/XRP/USD",
+				"selector": "data.result.last",
+				"invert": false
+			}
+		]
+	}
+}

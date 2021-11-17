@@ -142,6 +142,12 @@
 		},
 		"data": [
 			{
+				"name": "bitstamp:btc",
+				"url": "https://www.bitstamp.net/api/v2/ticker/xrpbtc/",
+				"selector": "data.last",
+				"invert": false
+			},
+			{
 				"name": "bybit:btc",
 				"url": "https://api.bybit.com/spot/quote/v1/ticker/price?symbol=XRPBTC",
 				"selector": "data.result.price",
@@ -173,8 +179,14 @@
 			},
 			{
 				"name": "upbit:btc",
-				"url": "https://api.upbit.com/v1/ticker?markets=ETH-XRP",
+				"url": "https://api.upbit.com/v1/ticker?markets=BTC-XRP",
 				"selector": "data[0].trade_price",
+				"invert": false
+			},
+			{
+				"name": "ftx:btc",
+				"url": "https://ftx.com/api/markets/XRP/BTC",
+				"selector": "data.result.last",
 				"invert": false
 			}
 		]
@@ -484,6 +496,12 @@
 				"url": "https://api.valr.com/v1/public/XRPZAR/marketsummary",
 				"selector": "data.lastTradedPrice",
 				"invert": false
+			},
+			{
+				"name": "altcointrader:zar",
+				"url": "https://api.altcointrader.co.za/v3/live-stats",
+				"selector": "data.XRP.Price",
+				"invert": false
 			}
 		]
 	},
@@ -522,6 +540,12 @@
 				"url": "https://id-api.upbit.com/v1/ticker?markets=IDR-XRP",
 				"selector": "data[0].trade_price",
 				"invert": false
+			},
+			{
+				"name": "indodax:idr",
+				"url": "https://indodax.com/api/ticker/xrpidr",
+				"selector": "data.ticker.last",
+				"invert": false
 			}
 		]
 	},
@@ -543,6 +567,12 @@
 				"name": "independent-reserve:sgd",
 				"url": "https://api.independentreserve.com/Public/GetMarketSummary?primaryCurrencyCode=xrp&secondaryCurrencyCode=sgd",
 				"selector": "data.LastPrice",
+				"invert": false
+			},
+			{
+				"name": "gateio:sgd",
+				"url": "https://api.gateio.ws/api/v4/spot/tickers?currency_pair=XRP_SGD",
+				"selector": "data[0].last",
 				"invert": false
 			}
 		]
@@ -572,6 +602,12 @@
 		},
 		"data": [
 			{
+				"name": "bitstamp:eth",
+				"url": "https://www.bitstamp.net/api/v2/ticker/xrpeth/",
+				"selector": "data.last",
+				"invert": false
+			},
+			{
 				"name": "bybit:eth",
 				"url": "https://api.bybit.com/spot/quote/v1/ticker/price?symbol=XRPETH",
 				"selector": "data.result.price",
@@ -580,7 +616,7 @@
 			{
 				"name": "kraken:eth",
 				"url": "https://api.kraken.com/0/public/Ticker?pair=XRPETH",
-				"selector": "data.result.XXRPXXBT.c[0]",
+				"selector": "data.result.XRPETH.c[0]",
 				"invert": false
 			},
 			{
@@ -603,7 +639,7 @@
 			},
 			{
 				"name": "upbit:eth",
-				"url": "https://api.upbit.com/v1/ticker?markets=ETH-XRP",
+				"url": "https://api.upbit.com/v1/ticker?markets=BTC-ETH",
 				"selector": "data[0].trade_price",
 				"invert": false
 			}

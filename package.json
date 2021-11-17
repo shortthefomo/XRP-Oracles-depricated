@@ -23,6 +23,7 @@
     "ws": "^8.2.3",
     "xrp-price-aggregator": "https://github.com/lathanbritz/XRP-Price-Aggregator.git",
     "xrpl-accountlib": "^1.1.4",
-    "xrpl-client": "^1.9.2"
+    "xrpl-client": "^1.9.2",
+    "xumm-sdk": "^1.0.2"
   }
 }

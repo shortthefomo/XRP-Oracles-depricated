@@ -23,6 +23,7 @@ module.exports = class SocketServer extends EventEmitter {
                   pubsub.publish(ws, json.channel, json.message)
                   break
                 case 'SUBSCRIBE':
+                  log('SUBSCRIBE: ' + json.message)
                   if (process.env.ALLOW_CORS) {
                     log('client subscribed to: ' + json.channel)
                     pubsub.subscribe(ws, json.channel)

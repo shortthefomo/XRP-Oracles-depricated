@@ -19,6 +19,14 @@ module.exports = class PubSubManager extends EventEmitter {
         message: [],
         subscribers: []
       },
+      oracles: {
+        message: [],
+        subscribers: []
+      },
+      users: {
+        message: [],
+        subscribers: []
+      },
     }
 
     Object.assign(this, {
