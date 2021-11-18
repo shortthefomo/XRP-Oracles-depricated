@@ -21,6 +21,8 @@ const SocketServer = require('./utilities/socket-server.js')
 const log = debug('oracle:main')
 const userlog = debug('oracle:user')
 
+dotenv.config()
+
 let server = null
 if (process.env.CERT != null) {
   log('using https: for webhead')
@@ -38,7 +40,6 @@ else  {
 class Oracle extends EventEmitter {
   constructor(Config) {
     super()
-    dotenv.config()
 
     let fifo = []
     let retry = []
