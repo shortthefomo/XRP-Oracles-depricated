@@ -43,7 +43,7 @@ class Oracle extends EventEmitter {
 
     let fifo = []
     let retry = []
-    const baseUrl = 'https://localhost:5000'
+    const baseUrl = 'https://panicbot.app:5000'
     const feedUrl = baseUrl + '/api/feed/data'
     const client = new XrplClient(process.env.ENDPOINT)
     const Sdk = new XummSdk(process.env.XUMM_APIKEY, process.env.XUMM_APISECRET)
