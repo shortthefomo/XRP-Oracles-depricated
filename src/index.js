@@ -30,11 +30,11 @@ if (process.env.CERT != null) {
       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
       key: fs.readFileSync(__dirname + process.env.KEY, 'utf8')
   }
-  server = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
+  httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
 }
 
 log('using http: for webhead: ' + (process.env.PORT))
-http.createServer(app).listen(process.env.PORT)
+httpServer = http.createServer(app).listen(process.env.PORT)
 
 class Oracle extends EventEmitter {
   constructor(Config) {
@@ -47,7 +47,8 @@ class Oracle extends EventEmitter {
     const client = new XrplClient(process.env.ENDPOINT)
     const Sdk = new XummSdk(process.env.XUMM_APIKEY, process.env.XUMM_APISECRET)
     const pubsub = new PubSubManager()
-    const socket = new SocketServer()
+    const httpsSocket = new SocketServer()
+    const httpSocket = new SocketServer()
     let oracleData = []
 
     Object.assign(this, {
@@ -58,7 +59,8 @@ class Oracle extends EventEmitter {
       },
       async start() {
         pubsub.start()
-        socket.start(server, pubsub)
+        httpsSocket.start(httpsServer, pubsub)
+        httpSocket.start(httpServer, pubsub)
         this.oracleFeed()
         this.startEventLoop()
         this.listenEventLoop()
