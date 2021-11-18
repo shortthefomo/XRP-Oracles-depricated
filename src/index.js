@@ -25,17 +25,16 @@ dotenv.config()
 
 let server = null
 if (process.env.CERT != null) {
-  log('using https: for webhead')
+  log('using https: for webhead: ' + process.env.PORT)
   const sslOptions = {
       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
       key: fs.readFileSync(__dirname + process.env.KEY, 'utf8')
   }
-  server = https.createServer(sslOptions, app)    
+  https.createServer(sslOptions, app).listen(process.env.PORT)   
 }
-else  {
-  log('using http: for webhead')
-  server = http.createServer(app)
-}
+
+log('using http: for webhead: ' + (process.env.PORT + 1))
+http.createServer(app).listen(process.env.PORT + 1)
 
 class Oracle extends EventEmitter {
   constructor(Config) {
@@ -299,7 +298,7 @@ oracle.createEndPoint(app, process.env.ALLOW_CORS)
 oracle.start()
 
 
-//server.on('request', app)
-server.listen(process.env.PORT, () => {
-   log('Server listening: ' + process.env.PORT)
-})
+// //server.on('request', app)
+// httpServer.listen(process.env.PORT, () => {
+//    log('Server listening: ' + process.env.PORT)
+// })
