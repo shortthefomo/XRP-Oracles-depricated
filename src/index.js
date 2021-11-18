@@ -30,7 +30,7 @@ if (process.env.CERT != null) {
       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
       key: fs.readFileSync(__dirname + process.env.KEY, 'utf8')
   }
-  https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
+  server = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
 }
 
 log('using http: for webhead: ' + (process.env.PORT))
