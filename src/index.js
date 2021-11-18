@@ -23,7 +23,7 @@ const userlog = debug('oracle:user')
 
 dotenv.config()
 
-let server = null
+let httpsServer = null
 if (process.env.CERT != null) {
   log('using https: for webhead: ' + process.env.SSLPORT)
   const sslOptions = {
@@ -34,7 +34,7 @@ if (process.env.CERT != null) {
 }
 
 log('using http: for webhead: ' + (process.env.PORT))
-httpServer = http.createServer(app).listen(process.env.PORT)
+const httpServer = http.createServer(app).listen(process.env.PORT)
 
 class Oracle extends EventEmitter {
   constructor(Config) {
