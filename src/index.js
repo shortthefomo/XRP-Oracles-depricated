@@ -5,7 +5,8 @@ const { XummSdk } = require('xumm-sdk')
 const app = require('express')()
 const express = require('express')
 const path = require( 'path')
-const server = require('http').createServer()
+const https = require('https')
+const http = require('http')
 const fs = require( 'fs')
 const debug = require( 'debug')
 const aggregator = require('xrp-price-aggregator')
@@ -20,6 +21,18 @@ const SocketServer = require('./utilities/socket-server.js')
 const log = debug('oracle:main')
 const userlog = debug('oracle:user')
 
+let server = null
+if (process.env.CERT != null) {
+    const sslOptions = {
+        cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
+        key: fs.readFileSync(__dirname + process.env.KEY, 'utf8')
+    }
+    server = https.createServer(sslOptions, app)    
+}
+else  {
+    server = http.createServer(app)
+}
+
 class Oracle extends EventEmitter {
   constructor(Config) {
     super()
@@ -27,7 +40,7 @@ class Oracle extends EventEmitter {
 
     let fifo = []
     let retry = []
-    const baseUrl = 'http://localhost:5000'
+    const baseUrl = 'https://localhost:5000'
     const feedUrl = baseUrl + '/api/feed/data'
     const client = new XrplClient(process.env.ENDPOINT)
     const Sdk = new XummSdk(process.env.XUMM_APIKEY, process.env.XUMM_APISECRET)
@@ -284,6 +297,6 @@ oracle.start()
 
 
 server.on('request', app)
-server.listen(5000, () => {
-   log('Server listening')
+server.listen(process.env.PORT, () => {
+   log('Server listening: ' + process.env.PORT)
 })
