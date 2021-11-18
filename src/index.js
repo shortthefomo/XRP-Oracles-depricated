@@ -299,7 +299,7 @@ oracle.createEndPoint(app, process.env.ALLOW_CORS)
 oracle.start()
 
 
-server.on('request', app)
+//server.on('request', app)
 server.listen(process.env.PORT, () => {
    log('Server listening: ' + process.env.PORT)
 })
