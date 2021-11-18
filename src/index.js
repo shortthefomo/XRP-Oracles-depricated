@@ -25,16 +25,16 @@ dotenv.config()
 
 let server = null
 if (process.env.CERT != null) {
-  log('using https: for webhead: ' + process.env.PORT)
+  log('using https: for webhead: ' + process.env.SSLPORT)
   const sslOptions = {
       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
       key: fs.readFileSync(__dirname + process.env.KEY, 'utf8')
   }
-  https.createServer(sslOptions, app).listen(process.env.PORT)   
+  https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
 }
 
-log('using http: for webhead: ' + (process.env.PORT + 1))
-http.createServer(app).listen(process.env.PORT + 1)
+log('using http: for webhead: ' + (process.env.PORT))
+http.createServer(app).listen(process.env.PORT)
 
 class Oracle extends EventEmitter {
   constructor(Config) {
@@ -42,7 +42,7 @@ class Oracle extends EventEmitter {
 
     let fifo = []
     let retry = []
-    const baseUrl = 'https://panicbot.app:5000'
+    const baseUrl = process.env.BASEURL
     const feedUrl = baseUrl + '/api/feed/data'
     const client = new XrplClient(process.env.ENDPOINT)
     const Sdk = new XummSdk(process.env.XUMM_APIKEY, process.env.XUMM_APISECRET)
