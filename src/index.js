@@ -23,14 +23,16 @@ const userlog = debug('oracle:user')
 
 let server = null
 if (process.env.CERT != null) {
-    const sslOptions = {
-        cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
-        key: fs.readFileSync(__dirname + process.env.KEY, 'utf8')
-    }
-    server = https.createServer(sslOptions, app)    
+  log('using https: for webhead')
+  const sslOptions = {
+      cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
+      key: fs.readFileSync(__dirname + process.env.KEY, 'utf8')
+  }
+  server = https.createServer(sslOptions, app)    
 }
 else  {
-    server = http.createServer(app)
+  log('using http: for webhead')
+  server = http.createServer(app)
 }
 
 class Oracle extends EventEmitter {
