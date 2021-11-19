@@ -34,7 +34,7 @@ if (process.env.CERT != null) {
   log('using https: for webhead: ' + process.env.SSLPORT)
   const sslOptions = {
       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
-      key: fs.readFileSync(__dirname + process.env.KEY, 'utf8')
+      key: fs.readFileSync(__dirname + process.env.KEY, 'utf8'),
       ca: [
         fs.readFileSync(__dirname + '/../../ssl/panicbot_app.ca-bundle', 'utf8')
       ]
