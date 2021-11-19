@@ -17,12 +17,12 @@ const axios = require('axios')
 const EventEmitter = require('events')
 const PubSubManager = require('./utilities/pubsub-v2.js')
 const SocketServer = require('./utilities/socket-server.js')
-const rootCas = require('ssl-root-cas').create()
+// const rootCas = require('ssl-root-cas').create()
 
-rootCas.addFile(path.resolve(__dirname, process.env.CERT))
-rootCas.addFile(path.resolve(__dirname, process.env.KEY))
+// rootCas.addFile(path.resolve(__dirname, process.env.CERT))
+// rootCas.addFile(path.resolve(__dirname, process.env.KEY))
 
-require('https').globalAgent.options.ca = require('ssl-root-cas').create()
+require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create()
 
 const log = debug('oracle:main')
 const userlog = debug('oracle:user')
@@ -36,7 +36,7 @@ if (process.env.CERT != null) {
       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
       key: fs.readFileSync(__dirname + process.env.KEY, 'utf8')
   }
-  httpsServer = https.createServer(rootCas, app).listen(process.env.SSLPORT)   
+  httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
 }
 
 log('using http: for webhead: ' + (process.env.PORT))
