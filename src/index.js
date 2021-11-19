@@ -22,7 +22,7 @@ const SocketServer = require('./utilities/socket-server.js')
 // rootCas.addFile(path.resolve(__dirname, process.env.CERT))
 // rootCas.addFile(path.resolve(__dirname, process.env.KEY))
 
-require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create()
+require('https').globalAgent.options.ca = require('ssl-root-cas').create()
 
 const log = debug('oracle:main')
 const userlog = debug('oracle:user')
