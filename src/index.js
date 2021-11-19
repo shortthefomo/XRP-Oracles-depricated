@@ -35,6 +35,9 @@ if (process.env.CERT != null) {
   const sslOptions = {
       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
       key: fs.readFileSync(__dirname + process.env.KEY, 'utf8')
+      ca: [
+        fs.readFileSync(__dirname + '/../../ssl/panicbot_app.ca-bundle', 'utf8')
+      ]
   }
   httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
 }
