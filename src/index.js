@@ -42,8 +42,8 @@ if (process.env.CERT != null) {
   httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
 }
 
-// log('using http: for webhead: ' + (process.env.PORT))
-// const httpServer = http.createServer(app).listen(process.env.PORT)
+log('using http: for webhead: ' + (process.env.PORT))
+const httpServer = http.createServer(app).listen(process.env.PORT)
 
 class Oracle extends EventEmitter {
   constructor(Config) {
@@ -69,7 +69,7 @@ class Oracle extends EventEmitter {
       async start() {
         pubsub.start()
         httpsSocket.start(httpsServer, pubsub)
-        // httpSocket.start(httpServer, pubsub)
+        httpSocket.start(httpServer, pubsub)
         this.oracleFeed()
         this.startEventLoop()
         this.listenEventLoop()
