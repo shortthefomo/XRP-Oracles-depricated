@@ -68,7 +68,7 @@ class Oracle extends EventEmitter {
       },
       async start() {
         pubsub.start()
-        httpsSocket.start(httpServer, pubsub)
+        httpsSocket.start(httpsServer, pubsub)
         // httpSocket.start(httpServer, pubsub)
         this.oracleFeed()
         this.startEventLoop()
