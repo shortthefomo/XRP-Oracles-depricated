@@ -30,17 +30,17 @@ const userlog = debug('oracle:user')
 dotenv.config()
 
 let httpsServer = null
-if (process.env.CERT != null) {
-  log('using https: for webhead: ' + process.env.SSLPORT)
-  const sslOptions = {
-      cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
-      key: fs.readFileSync(__dirname + process.env.KEY, 'utf8'),
-      ca: [
-        fs.readFileSync(__dirname + process.env.BUNDLE, 'utf8')
-      ]
-  }
-  httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
-}
+// if (process.env.CERT != null) {
+//   log('using https: for webhead: ' + process.env.SSLPORT)
+//   const sslOptions = {
+//       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
+//       key: fs.readFileSync(__dirname + process.env.KEY, 'utf8'),
+//       ca: [
+//         fs.readFileSync(__dirname + process.env.BUNDLE, 'utf8')
+//       ]
+//   }
+//   httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
+// }
 
 log('using http: for webhead: ' + (process.env.PORT))
 const httpServer = http.createServer(app).listen(process.env.PORT)
@@ -68,7 +68,7 @@ class Oracle extends EventEmitter {
       },
       async start() {
         pubsub.start()
-        httpsSocket.start(httpsServer, pubsub)
+        // httpsSocket.start(httpServer, pubsub)
         httpSocket.start(httpServer, pubsub)
         this.oracleFeed()
         this.startEventLoop()

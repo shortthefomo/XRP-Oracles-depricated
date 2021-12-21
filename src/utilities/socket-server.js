@@ -24,17 +24,19 @@ module.exports = class SocketServer extends EventEmitter {
                   break
                 case 'SUBSCRIBE':
                   log('SUBSCRIBE: ' + json.message)
-                  if (process.env.ALLOW_CORS) {
-                    log('client subscribed to: ' + json.channel)
-                    pubsub.subscribe(ws, json.channel)
-                  }
-                  else {
-                    if (req.headers.origin != process.env.DOMAIN) {
-                      log('header denied: ' + req.headers.origin + ' :' + json.message)
-                      ws.send(JSON.stringify({ access: 'denied' }))
-                      ws.close()
-                    }
-                  }
+                  pubsub.subscribe(ws, json.channel)
+                  
+                  // if (process.env.ALLOW_CORS) {
+                  //   log('client subscribed to: ' + json.channel)
+                  //   pubsub.subscribe(ws, json.channel)
+                  // }
+                  // else {
+                  //   if (req.headers.origin != process.env.DOMAIN) {
+                  //     log('header denied: ' + req.headers.origin + ' :' + json.message)
+                  //     ws.send(JSON.stringify({ access: 'denied' }))
+                  //     ws.close()
+                  //   }
+                  // }
                   break
               }
             } catch (error) {
