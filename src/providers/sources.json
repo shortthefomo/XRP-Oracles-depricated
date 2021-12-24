@@ -684,12 +684,6 @@
 				"invert": false
 			},
 			{
-				"name": "upbit:eth",
-				"url": "https://api.upbit.com/v1/ticker?markets=BTC-ETH",
-				"selector": "data[0].trade_price",
-				"invert": false
-			},
-			{
 				"name": "coinfield:eth",
 				"url": "https://api.coinfield.com/v1/tickers/ethxrp",
 				"selector": "data.tickers.ethxrp.last",
