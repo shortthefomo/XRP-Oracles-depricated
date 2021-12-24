@@ -35,6 +35,10 @@ module.exports = class CurrencyPublisher {
           filteredMedian = exp[0] + '.' + exp[1].substring(0, 10)
         }
         
+        let code = data.symbol.substring('XRP/'.length)
+        if (code.length > 3) {
+          code = this.currencyUTF8ToHex(code)
+        }
         const Tx = {
           TransactionType: 'TrustSet',
           Account: process.env.XRPL_SOURCE_ACCOUNT,
@@ -42,7 +46,7 @@ module.exports = class CurrencyPublisher {
           Flags: 131072,
           Sequence: sequence,
           LimitAmount: {
-            currency: data.symbol.substring('XRP/'.length),
+            currency: code,
             issuer: process.env.XRPL_DESTINATION_ACCOUNT,
             value: filteredMedian
           },
@@ -79,6 +83,21 @@ module.exports = class CurrencyPublisher {
           oracle.retryPublish(data)
           errlog('RESUBMIT: ' + data.symbol)
         }
+      },
+      currencyUTF8ToHex(code){
+        if(/^[a-zA-Z0-9\?\!\@\#\$\%\^\&\*\<\>\(\)\{\}\[\]\|\]\{\}]{3}$/.test(code))
+          return code
+    
+        if(/^[A-Z0-9]{40}$/.test(code))
+          return code
+    
+        let hex = ''
+    
+        for(let i=0; i<code.length; i++){
+          hex += code.charCodeAt(i).toString(16)
+        }
+    
+        return hex.toUpperCase().padEnd(40, '0')
       }
     })
   }
