@@ -188,6 +188,12 @@
 				"url": "https://ftx.com/api/markets/XRP/BTC",
 				"selector": "data.result.last",
 				"invert": false
+			},
+			{
+				"name": "coinfield:btc",
+				"url": "https://api.coinfield.com/v1/tickers/btcxrp",
+				"selector": "data.tickers.btcxrp.last",
+				"invert": true
 			}
 		]
 	},
@@ -203,6 +209,12 @@
 				"name": "bitrue:xlm",
 				"url": "https://www.bitrue.com/api/v1/ticker/24hr?symbol=XLMXRP",
 				"selector": "data[0].lastPrice",
+				"invert": true
+			},
+			{
+				"name": "coinfield:xlm",
+				"url": "https://api.coinfield.com/v1/tickers/xlmxrp",
+				"selector": "data.tickers.xlmxrp.last",
 				"invert": true
 			}
 		]
