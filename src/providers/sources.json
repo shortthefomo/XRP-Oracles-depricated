@@ -304,6 +304,12 @@
 				"url": "https://api.kraken.com/0/public/Ticker?pair=XRPJPY",
 				"selector": "data.result.XXRPZJPY.c[0]",
 				"invert": false
+			},
+			{
+				"name": "coinfield:jpy",
+				"url": "https://api.coinfield.com/v1/tickers/xrpjpy",
+				"selector": "data.tickers.xrpjpy.last",
+				"invert": false
 			}
 		]
 	},
