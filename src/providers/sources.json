@@ -130,6 +130,12 @@
 				"url": "https://www.bithash.net/api/v4/ticker",
 				"selector": "data.XRP_EUR.last_price",
 				"invert": false
+			},
+			{
+				"name": "coinfield:eur",
+				"url": "https://api.coinfield.com/v1/tickers/xrpeur",
+				"selector": "data.tickers.xrpeur.last",
+				"invert": false
 			}
 		]
 	},
@@ -682,6 +688,12 @@
 				"url": "https://api.upbit.com/v1/ticker?markets=BTC-ETH",
 				"selector": "data[0].trade_price",
 				"invert": false
+			},
+			{
+				"name": "coinfield:eth",
+				"url": "https://api.coinfield.com/v1/tickers/ethxrp",
+				"selector": "data.tickers.ethxrp.last",
+				"invert": true
 			}
 		]
 	}
