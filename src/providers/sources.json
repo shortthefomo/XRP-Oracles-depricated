@@ -236,6 +236,12 @@
 				"url": "https://www.bitrue.com/api/v1/ticker/24hr?symbol=SGBXRP",
 				"selector": "data[0].lastPrice",
 				"invert": true
+			},
+			{
+				"name": "coinfield:sgb",
+				"url": "https://api.coinfield.com/v1/tickers/sgbxrp",
+				"selector": "data.tickers.sgbxrp.last",
+				"invert": true
 			}
 		]
 	},
@@ -589,6 +595,22 @@
 				"name": "bitrue:zap",
 				"url": "https://www.bitrue.com/api/v1/ticker/24hr?symbol=ZAPXRP",
 				"selector": "data[0].lastPrice",
+				"invert": true
+			}
+		]
+	},
+	"solo" : {
+		"config": {
+			"type": "alt",
+			"symbol": "XRP/SOLO",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "coinfield:solo",
+				"url": "https://api.coinfield.com/v1/tickers/soloxrp",
+				"selector": "data.tickers.soloxrp.last",
 				"invert": true
 			}
 		]
