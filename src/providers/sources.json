@@ -635,7 +635,7 @@
 				"name": "coinfield:solo",
 				"url": "https://api.coinfield.com/v1/tickers/soloxrp",
 				"selector": "data.tickers.soloxrp.last",
-				"invert": false
+				"invert": true
 			}
 		]
 	},
