@@ -54,7 +54,8 @@ class Oracle extends EventEmitter {
     const baseUrl = process.env.BASEURL
     const feedUrl = baseUrl + '/api/feed/data'
     const client = new XrplClient(process.env.ENDPOINT)
-    const Sdk = new XummSdk(process.env.XUMM_APIKEY, process.env.XUMM_APISECRET)
+    log(`using XummSdk, env.XUMM_APIKEY defined: ${process.env.XUMM_APIKEY != null}`)
+    const Sdk = process.env.XUMM_APIKEY == null ? null : new XummSdk(process.env.XUMM_APIKEY, process.env.XUMM_APISECRET)
     const pubsub = new PubSubManager()
     const httpsSocket = new SocketServer()
     const httpSocket = new SocketServer()
@@ -68,7 +69,9 @@ class Oracle extends EventEmitter {
       },
       async start() {
         pubsub.start()
-        httpsSocket.start(httpsServer, pubsub)
+        if(httpsServer != null) {
+          httpsSocket.start(httpsServer, pubsub)
+        }
         httpSocket.start(httpServer, pubsub)
         this.oracleFeed()
         this.startEventLoop()
@@ -244,6 +247,10 @@ class Oracle extends EventEmitter {
         retry.push(data)
       },
       async userSignIn() {
+				if(Sdk == null) {
+					this.subscriptionListener(false)
+					return false
+				}
 				const SignInPayload = {
 					txjson: {
 						TransactionType : 'SignIn'
@@ -268,6 +275,7 @@ class Oracle extends EventEmitter {
 			},
 
 			async subscriptionListener(subscription) {
+				if(Sdk == null) { return }
 				const self = this
 				const resolveData = await subscription.resolved
 
