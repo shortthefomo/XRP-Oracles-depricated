@@ -56,10 +56,13 @@ class Oracle extends EventEmitter {
     const client = new XrplClient(process.env.ENDPOINT)
     log(`using XummSdk, env.XUMM_APIKEY defined: ${process.env.XUMM_APIKEY != null}`)
     const Sdk = process.env.XUMM_APIKEY == null ? null : new XummSdk(process.env.XUMM_APIKEY, process.env.XUMM_APISECRET)
+    const password = process.env.PASSWORD
     const pubsub = new PubSubManager()
     const httpsSocket = new SocketServer()
     const httpSocket = new SocketServer()
     let oracleData = []
+    let runningSince = new Date()
+    let sourceBalanceDrops = null
 
     Object.assign(this, {
       async run(oracle) {
@@ -83,6 +86,7 @@ class Oracle extends EventEmitter {
             const { account_data } = await client.send({ command: 'account_info', account: process.env.XRPL_SOURCE_ACCOUNT })
             //log(account_data)
             if (account_data != null && 'Sequence' in account_data) {
+              sourceBalanceDrops = account_data.Balance
               this.processFifo(account_data.Sequence)  
             }
           }
@@ -204,6 +208,18 @@ class Oracle extends EventEmitter {
           const data = await self.userSignIn()
           res.json(data)
       })
+
+        app.get('/api/heartbeat', async function(req, res) {
+          // allow cors through for local testing.
+          if (testing) {
+            res.header("Access-Control-Allow-Origin", "*")    
+          }
+          let data = { running: true }
+          if (password != null && req.query.pwr === password) {
+            data = { running: true, runningSince: runningSince, sourceBalanceDrops: sourceBalanceDrops }
+          }
+          res.json(data)
+        })
       },
       sendSocket(data) {
         const oracle = data.symbol
