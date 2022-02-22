@@ -1,0 +1,492 @@
+{
+	"basic" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/USD",
+			"call": 1,
+			"delay": 1
+		},
+		"data": [
+			{
+				"name": "bitstamp:usd",
+				"url": "https://www.bitstamp.net/api/v2/ticker/xrpusd/",
+				"selector": "data.last",
+				"invert": false
+			},
+			{
+				"name": "binance:usdt",
+				"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPUSDT",
+				"selector": "data.price",
+				"invert": false
+			},
+			{
+				"name": "binance:busd",
+				"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPBUSD",
+				"selector": "data.price",
+				"invert": false
+			},
+			{
+				"name": "bybit:usdt",
+				"url": "https://api.bybit.com/spot/quote/v1/ticker/price?symbol=XRPUSDT",
+				"selector": "data.result.price",
+				"invert": false
+			},
+			{
+				"name": "kraken:usd",
+				"url": "https://api.kraken.com/0/public/Ticker?pair=XRPUSD",
+				"selector": "data.result.XXRPZUSD.c[0]",
+				"invert": false
+			},
+			{
+				"name": "huobi:usdt",
+				"url": "https://api.huobi.pro/market/detail/merged?symbol=xrpusdt",
+				"selector": "data.tick.close",
+				"invert": false
+			},
+			{
+				"name": "bithumb:usdt",
+				"url": "https://global-openapi.bithumb.pro/openapi/v1/spot/ticker?symbol=XRP-USDT",
+				"selector": "data.data[0].c",
+				"invert": false
+			},
+			{
+				"name": "upbit:usdt",
+				"url": "https://api.upbit.com/v1/ticker?markets=USDT-XRP",
+				"selector": "data[0].trade_price",
+				"invert": false
+			},
+			{
+				"name": "hitbtc:usdt",
+				"url": "https://api.hitbtc.com/api/2/public/ticker/XRPUSDT",
+				"selector": "data.last",
+				"invert": false
+			},
+			{
+				"name": "btse:usd",
+				"url": "https://api.btse.com/spot/api/v3.2/price?symbol=XRP-USD",
+				"selector": "data[0].lastPrice",
+				"invert": false
+			},
+			{
+				"name": "bitfinex:usd",
+				"url": "https://api-pub.bitfinex.com/v2/ticker/tXRPUSD",
+				"selector": "data[6]",
+				"invert": false
+			},
+			{
+				"name": "independent-reserve:usd",
+				"url": "https://api.independentreserve.com/Public/GetMarketSummary?primaryCurrencyCode=xrp&secondaryCurrencyCode=usd",
+				"selector": "data.LastPrice",
+				"invert": false
+			},
+			{
+				"name": "bithash:usd",
+				"url": "https://www.bithash.net/api/v4/ticker",
+				"selector": "data.XRP_USD.last_price",
+				"invert": false
+			},
+			{
+				"name": "ftx:usd",
+				"url": "https://ftx.com/api/markets/XRP/USD",
+				"selector": "data.result.last",
+				"invert": false
+			}
+		]
+	},
+	"eur" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/EUR",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "bitstamp:eur",
+				"url": "https://www.bitstamp.net/api/v2/ticker/xrpeur/",
+				"selector": "data.last",
+				"invert": false
+			},
+			{
+				"name": "binance:eur",
+				"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPEUR",
+				"selector": "data.price",
+				"invert": false
+			},
+			{
+				"name": "kraken:eur",
+				"url": "https://api.kraken.com/0/public/Ticker?pair=XRPEUR",
+				"selector": "data.result.XXRPZEUR.c[0]",
+				"invert": false
+			},
+			{
+				"name": "btse:eur",
+				"url": "https://api.btse.com/spot/api/v3.2/price?symbol=XRP-EUR",
+				"selector": "data[0].lastPrice",
+				"invert": false
+			},
+			{
+				"name": "bithash:eur",
+				"url": "https://www.bithash.net/api/v4/ticker",
+				"selector": "data.XRP_EUR.last_price",
+				"invert": false
+			},
+			{
+				"name": "coinfield:eur",
+				"url": "https://api.coinfield.com/v1/tickers/xrpeur",
+				"selector": "data.tickers.xrpeur.last",
+				"invert": false
+			}
+		]
+	},
+	"jpy" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/JPY",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "bitbank:jpy",
+				"url": "https://public.bitbank.cc/xrp_jpy/ticker",
+				"selector": "data.data.last",
+				"invert": false
+			},
+			{
+				"name": "gmo-coin:jpy",
+				"url": "https://api.coin.z.com/public/v1/ticker?symbol=XRP",
+				"selector": "data.data.last",
+				"invert": false
+			},
+			{
+				"name": "btse:jpy",
+				"url": "https://api.btse.com/spot/api/v3.2/price?symbol=XRP-JPY",
+				"selector": "data[0].lastPrice",
+				"invert": false
+			},
+			{
+				"name": "kraken:jpy",
+				"url": "https://api.kraken.com/0/public/Ticker?pair=XRPJPY",
+				"selector": "data.result.XXRPZJPY.c[0]",
+				"invert": false
+			},
+			{
+				"name": "coinfield:jpy",
+				"url": "https://api.coinfield.com/v1/tickers/xrpjpy",
+				"selector": "data.tickers.xrpjpy.last",
+				"invert": false
+			}
+		]
+	},
+	"krw" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/KRW",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "upbit:krw",
+				"url": "https://api.upbit.com/v1/ticker?markets=KRW-XRP",
+				"selector": "data[0].trade_price",
+				"invert": false
+			},
+			{
+				"name": "coinone:krw",
+				"url": "https://api.coinone.co.kr/ticker/?currency=XRP",
+				"selector": "data.last",
+				"invert": false
+			}
+		]
+	},
+	"try" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/TRY",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "binance:try",
+				"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPTRY",
+				"selector": "data.price",
+				"invert": false
+			},
+			{
+				"name": "btcturk:try",
+				"url": "https://api.btcturk.com/api/v2/ticker?pairSymbol=XRP_TRY",
+				"selector": "data.data[0].last",
+				"invert": false
+			}
+		]
+	},
+	"gbp" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/GBP",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "binance:gbp",
+				"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPGBP",
+				"selector": "data.price",
+				"invert": false
+			},
+			{
+				"name": "bitstamp:gbp",
+				"url": "https://www.bitstamp.net/api/v2/ticker/xrpgbp/",
+				"selector": "data.last",
+				"invert": false
+			},
+			{
+				"name": "btse:gbp",
+				"url": "https://api.btse.com/spot/api/v3.2/price?symbol=XRP-GBP",
+				"selector": "data[0].lastPrice",
+				"invert": false
+			},
+			{
+				"name": "kraken:gbp",
+				"url": "https://api.kraken.com/0/public/Ticker?pair=XRPGBP",
+				"selector": "data.result.XRPGBP.c[0]",
+				"invert": false
+			}
+		]
+	},
+	"thb" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/THB",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "bitkub:thb",
+				"url": "https://api.bitkub.com/api/market/ticker?sym=THB_XRP",
+				"selector": "data.THB_XRP.last",
+				"invert": false
+			}
+		]
+	},
+	"rub" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/RUB",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "binance:rub",
+				"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPRUB",
+				"selector": "data.price",
+				"invert": false
+			},
+			{
+				"name": "bithash:rub",
+				"url": "https://www.bithash.net/api/v4/ticker",
+				"selector": "data.XRP_RUB.last_price",
+				"invert": false
+			}
+		]
+	},
+	"brl" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/BRL",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "binance:brl",
+				"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPBRL",
+				"selector": "data.price",
+				"invert": false
+			},
+			{
+				"name": "mercadobitcoin:brl",
+				"url": "https://www.mercadobitcoin.net/api/XRP/ticker/",
+				"selector": "data.ticker.last",
+				"invert": false
+			},
+			{
+				"name": "novadax:brl",
+				"url": "https://api.novadax.com/v1/market/ticker?symbol=XRP_BRL",
+				"selector": "data.data.lastPrice",
+				"invert": false
+			}
+		]
+	},
+	"aud" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/AUD",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "binance:aud",
+				"url": "https://api.binance.com/api/v3/ticker/price?symbol=XRPAUD",
+				"selector": "data.price",
+				"invert": false
+			},
+			{
+				"name": "coinjar:aud",
+				"url": "https://data.exchange.coinjar.com/products/XRPAUD/ticker",
+				"selector": "data.last",
+				"invert": false
+			},
+			{
+				"name": "independent-reserve:aud",
+				"url": "https://api.independentreserve.com/Public/GetMarketSummary?primaryCurrencyCode=xrp&secondaryCurrencyCode=aud",
+				"selector": "data.LastPrice",
+				"invert": false
+			}
+		]
+	},
+	"mxn" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/MXN",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "bitso:mxn",
+				"url": "https://api.bitso.com/v3/ticker/?book=xrp_mxn",
+				"selector": "data.payload.last",
+				"invert": false
+			}
+		]
+	},
+	"zar" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/ZAR",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "luno:zar",
+				"url": "https://api.luno.com/api/1/ticker?pair=XRPZAR",
+				"selector": "data.last_trade",
+				"invert": false
+			},
+			{
+				"name": "valr:zar",
+				"url": "https://api.valr.com/v1/public/XRPZAR/marketsummary",
+				"selector": "data.lastTradedPrice",
+				"invert": false
+			},
+			{
+				"name": "altcointrader:zar",
+				"url": "https://api.altcointrader.co.za/v3/live-stats",
+				"selector": "data.XRP.Price",
+				"invert": false
+			}
+		]
+	},
+	"myr" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/MYR",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "luno:myr",
+				"url": "https://api.luno.com/api/1/ticker?pair=XRPMYR",
+				"selector": "data.last_trade",
+				"invert": false
+			},
+			{
+				"name": "tokenize-exchange:myr",
+				"url": "https://api2.tokenize.exchange/public/v1/market/ticker?market=MYR-XRP",
+				"selector": "data.data.lastPrice",
+				"invert": false
+			}
+		]
+	},
+	"idr" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/IDR",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "upbit:idr",
+				"url": "https://id-api.upbit.com/v1/ticker?markets=IDR-XRP",
+				"selector": "data[0].trade_price",
+				"invert": false
+			},
+			{
+				"name": "indodax:idr",
+				"url": "https://indodax.com/api/ticker/xrpidr",
+				"selector": "data.ticker.last",
+				"invert": false
+			}
+		]
+	},
+	"sgd" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/SGD",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "tokenize-exchange:sgd",
+				"url": "https://api2.tokenize.exchange/public/v1/market/ticker?market=SGD-XRP",
+				"selector": "data.data.lastPrice",
+				"invert": false
+			},
+			{
+				"name": "independent-reserve:sgd",
+				"url": "https://api.independentreserve.com/Public/GetMarketSummary?primaryCurrencyCode=xrp&secondaryCurrencyCode=sgd",
+				"selector": "data.LastPrice",
+				"invert": false
+			},
+			{
+				"name": "gateio:sgd",
+				"url": "https://api.gateio.ws/api/v4/spot/tickers?currency_pair=XRP_SGD",
+				"selector": "data[0].last",
+				"invert": false
+			}
+		]
+	},
+	"chf" : {
+		"config": {
+			"type": "currency",
+			"symbol": "XRP/CHF",
+			"call": 1,
+			"delay": 0.5
+		},
+		"data": [
+			{
+				"name": "coinbase:chf",
+				"url": "https://api.coinbase.com/v2/exchange-rates?currency=XRP",
+				"selector": "data.data.rates.CHF",
+				"invert": false
+			},
+			{
+				"name": "bitpanda:chf",
+				"url": "https://api.exchange.bitpanda.com/public/v1/market-ticker/XRP_CHF",
+				"selector": "data.last_price",
+				"invert": false
+			}
+		]
+	}
+}
