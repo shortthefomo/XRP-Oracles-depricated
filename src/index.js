@@ -57,6 +57,7 @@ class Oracle extends EventEmitter {
     log(`using XummSdk, env.XUMM_APIKEY defined: ${process.env.XUMM_APIKEY != null}`)
     const Sdk = process.env.XUMM_APIKEY == null ? null : new XummSdk(process.env.XUMM_APIKEY, process.env.XUMM_APISECRET)
     const password = process.env.PASSWORD
+    const providerConfig = process.env.PROVIDER_CONFIG == null ? 'sources.json' : process.env.PROVIDER_CONFIG
     const pubsub = new PubSubManager()
     const httpsSocket = new SocketServer()
     const httpSocket = new SocketServer()
@@ -165,7 +166,7 @@ class Oracle extends EventEmitter {
       },
       async fetchData() {
         return new Promise((resolve, reject) => {
-          fs.readFile(path.join(__dirname + '/providers/sources.json'), async (err, data) => {
+          fs.readFile(path.join(__dirname + '/providers/' + providerConfig), async (err, data) => {
             if (err) throw err
             resolve(JSON.parse(data))
           })
