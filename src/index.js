@@ -42,6 +42,9 @@ if (process.env.CERT != null) {
   httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
 }
 
+axios.defaults.timeout = process.env.TIMEOUT_SECONDS != null ? process.env.TIMEOUT_SECONDS * 1000 : 15000;
+axios.defaults.httpsAgent = new https.Agent({ keepAlive: true });
+
 log('using http: for webhead: ' + (process.env.PORT))
 const httpServer = http.createServer(app).listen(process.env.PORT)
 
@@ -151,11 +154,19 @@ class Oracle extends EventEmitter {
       startEventLoop() {
         const self = this
         this.addListener('oracle-fetch', async function() {
-          let { data }  = await axios.get(feedUrl)
-          const keys = Object.keys(data)
-          for(let oracle of keys) {
-            // log(oracle)
-            self.processData(oracle)
+          try {
+            let { data }  = await axios.get(feedUrl)
+            const keys = Object.keys(data)
+            for(let oracle of keys) {
+              // log(oracle)
+              self.processData(oracle)
+            }
+          } catch(e) {
+            if(e.code == 'ETIMEDOUT') {
+              log(`Timeout calling ${feedUrl}`)
+            } else {
+              throw e;
+            }
           }
         })
       },
