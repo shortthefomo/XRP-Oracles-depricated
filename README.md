@@ -44,9 +44,7 @@ Most of the configuration of the oracle is defined in the sources.json.
 
 ## Logging
 
-Run with `DEBUG=oracle*` (prefixed) to read debug output. This is automatically prepended when
-running `yarn dev`.
-
+Logging is done with [winston](https://github.com/winstonjs/winston) and uses rolling logs. Change log level by setting `LOG_LEVEL`. Log files are created in subfolder /logs.
 
 ## RoadMap
 
@@ -56,7 +54,6 @@ running `yarn dev`.
 - Lib to find other Oracles on the XRPL
   - Hearbeat format and service
   - Ledger watching to find other services uploading the hearbeat
-- Monitoring and logging
 - Test Hook consuming a oracle price feed
 
 

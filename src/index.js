@@ -8,7 +8,8 @@ const path = require( 'path')
 const https = require('https')
 const http = require('http')
 const fs = require( 'fs')
-const debug = require( 'debug')
+const winston = require('winston');
+const DailyRotateFile = require('winston-daily-rotate-file');
 const aggregator = require('xrp-price-aggregator')
 const stats = require('stats-analysis')
 const currency = require('./publishers/currency.js') 
@@ -24,14 +25,34 @@ const SocketServer = require('./utilities/socket-server.js')
 
 require('https').globalAgent.options.ca = require('ssl-root-cas').create()
 
-const log = debug('oracle:main')
-const userlog = debug('oracle:user')
-
 dotenv.config()
+
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL == null ? 'warn' : process.env.LOG_LEVEL,
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new DailyRotateFile({
+      filename: 'app-%DATE%.log',
+      dirname: 'logs',
+      datePattern: 'YYYY-MM-DD',
+      zippedArchive: true,
+      maxSize: '20m',
+      maxFiles: '14d'
+    }),
+  ],
+})
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple(),
+  }))
+}
 
 let httpsServer = null
 if (process.env.CERT != null) {
-  log('using https: for webhead: ' + process.env.SSLPORT)
+  logger.info('using https: for webhead: ' + process.env.SSLPORT)
   const sslOptions = {
       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
       key: fs.readFileSync(__dirname + process.env.KEY, 'utf8'),
@@ -45,7 +66,7 @@ if (process.env.CERT != null) {
 axios.defaults.timeout = process.env.TIMEOUT_SECONDS != null ? process.env.TIMEOUT_SECONDS * 1000 : 15000;
 axios.defaults.httpsAgent = new https.Agent({ keepAlive: true });
 
-log('using http: for webhead: ' + (process.env.PORT))
+logger.info('using http: for webhead: ' + (process.env.PORT))
 const httpServer = http.createServer(app).listen(process.env.PORT)
 
 class Oracle extends EventEmitter {
@@ -57,7 +78,7 @@ class Oracle extends EventEmitter {
     const baseUrl = process.env.BASEURL
     const feedUrl = baseUrl + '/api/feed/data'
     const client = new XrplClient(process.env.ENDPOINT)
-    log(`using XummSdk, env.XUMM_APIKEY defined: ${process.env.XUMM_APIKEY != null}`)
+    logger.info(`using XummSdk, env.XUMM_APIKEY defined: ${process.env.XUMM_APIKEY != null}`)
     const Sdk = process.env.XUMM_APIKEY == null ? null : new XummSdk(process.env.XUMM_APIKEY, process.env.XUMM_APISECRET)
     const password = process.env.PASSWORD
     const providerConfig = process.env.PROVIDER_CONFIG == null ? 'sources.json' : process.env.PROVIDER_CONFIG
@@ -88,7 +109,7 @@ class Oracle extends EventEmitter {
         client.on('ledger', async (event) =>  {
           if (event.type == 'ledgerClosed') {
             const { account_data } = await client.send({ command: 'account_info', account: process.env.XRPL_SOURCE_ACCOUNT })
-            //log(account_data)
+            //logger.debug(account_data)
             if (account_data != null && 'Sequence' in account_data) {
               sourceBalanceDrops = account_data.Balance
               this.processFifo(account_data.Sequence)  
@@ -131,7 +152,7 @@ class Oracle extends EventEmitter {
           
           results.meta.push(result)
         }
-        log(results)
+        logger.debug(results)
         if (pubsub != null) {
           pubsub.route(results, 'oracles')
         }
@@ -158,12 +179,12 @@ class Oracle extends EventEmitter {
             let { data }  = await axios.get(feedUrl)
             const keys = Object.keys(data)
             for(let oracle of keys) {
-              // log(oracle)
+              // logger.verbose(oracle)
               self.processData(oracle)
             }
           } catch(e) {
             if(e.code == 'ETIMEDOUT') {
-              log(`Timeout calling ${feedUrl}`)
+              logger.warn(`Timeout calling ${feedUrl}`)
             } else {
               throw e;
             }
@@ -204,7 +225,7 @@ class Oracle extends EventEmitter {
             if (!('oracle' in req.query)) { return res.json({ 'error' : 'missing parameter oracle'}) }
 
             const data = await self.run(req.query.oracle)
-            log('dataSubmission: ' + req.query.oracle)
+            logger.verbose('dataSubmission: ' + req.query.oracle)
             
             fifo.push(data)
             res.json(data)
@@ -213,7 +234,7 @@ class Oracle extends EventEmitter {
         app.get('/api/v2/xumm-sign-in', async function(req, res) {
           // allow cors through for local testing.
           if (testing) {
-              // log('allow cors through for local testing')
+              // logger.debug('allow cors through for local testing')
               res.header("Access-Control-Allow-Origin", "*")    
           }
 
@@ -239,7 +260,7 @@ class Oracle extends EventEmitter {
           data.previous = oracleData[oracle].previous
         }
 
-        log('pubsub: ' + data.symbol + ':' + data.type)
+        logger.debug('pubsub: ' + data.symbol + ':' + data.type)
         pubsub.route(data, 'currency')
 
         if (!(oracle in oracleData)) {
@@ -251,7 +272,7 @@ class Oracle extends EventEmitter {
       },
       async processFifo(sequence) {
 
-        log('PUBLISH DATA fifo length: ' + fifo.length)
+        logger.debug('PUBLISH DATA fifo length: ' + fifo.length)
 
         while(fifo.length > 0) {
           const publisher = new currency()
@@ -284,7 +305,7 @@ class Oracle extends EventEmitter {
 						TransactionType : 'SignIn'
 					}
 				}
-				//log(SignInPayload)
+				//logger.debug(SignInPayload)
 
 				const payload = await Sdk.payload.createAndSubscribe(SignInPayload, event => {
 					if (event.data.signed === true) {
@@ -295,7 +316,7 @@ class Oracle extends EventEmitter {
 						return false
 					}
 				})
-        userlog(payload)
+        logger.debug(payload)
 				this.subscriptionListener(payload)
 				
 
@@ -310,7 +331,7 @@ class Oracle extends EventEmitter {
 				if (resolveData.signed === false) { return }
 
 				if (resolveData.signed === true) {
-					userlog('Woohoo! The sign request was signed :)')
+					logger.debug('Woohoo! The sign request was signed :)')
 
 					/**
 					 * Let's fetch the full payload end result, and get the issued
@@ -318,10 +339,10 @@ class Oracle extends EventEmitter {
 					 */
 					const result = await Sdk.payload.get(resolveData.payload_uuidv4)
 					
-          userlog(result)
+          logger.debug(result)
 					// guard clause to make sure we only looking at sign in here
 					if (result.payload.tx_type != 'SignIn') { return }
-          userlog('User token:', result.application.issued_user_token)
+          logger.debug('User token:', result.application.issued_user_token)
 					
 					
 
@@ -347,5 +368,5 @@ oracle.start()
 
 // //server.on('request', app)
 // httpServer.listen(process.env.PORT, () => {
-//    log('Server listening: ' + process.env.PORT)
+//    logger.debug('Server listening: ' + process.env.PORT)
 // })
