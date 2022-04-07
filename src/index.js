@@ -254,7 +254,7 @@ class Oracle extends EventEmitter {
           const publisher = new currency()
           const data = fifo.pop()
 
-          if (process.env.PUBLISH_TO_XRPL) {
+          if (process.env.PUBLISH_TO_XRPL === 'true') {
             publisher.publish(client, data, sequence, this)  
           }
 
