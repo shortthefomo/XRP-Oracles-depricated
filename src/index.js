@@ -8,8 +8,7 @@ const path = require( 'path')
 const https = require('https')
 const http = require('http')
 const fs = require( 'fs')
-const winston = require('winston');
-const DailyRotateFile = require('winston-daily-rotate-file');
+const logger = require('./logger.js');
 const aggregator = require('xrp-price-aggregator')
 const stats = require('stats-analysis')
 const currency = require('./publishers/currency.js') 
@@ -26,29 +25,6 @@ const SocketServer = require('./utilities/socket-server.js')
 require('https').globalAgent.options.ca = require('ssl-root-cas').create()
 
 dotenv.config()
-
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL == null ? 'warn' : process.env.LOG_LEVEL,
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new DailyRotateFile({
-      filename: 'app-%DATE%.log',
-      dirname: 'logs',
-      datePattern: 'YYYY-MM-DD',
-      zippedArchive: true,
-      maxSize: '20m',
-      maxFiles: '14d'
-    }),
-  ],
-})
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.simple(),
-  }))
-}
 
 let httpsServer = null
 if (process.env.CERT != null) {

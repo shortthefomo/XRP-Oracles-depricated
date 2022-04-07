@@ -1,8 +1,7 @@
 'use strict'
 
 const EventEmitter = require('events')
-const debug = require( 'debug')
-const log = debug('oracle:pubsub')
+const logger = require('../logger.js');
 
 module.exports = class PubSubManager extends EventEmitter {
   constructor() {
@@ -38,7 +37,7 @@ module.exports = class PubSubManager extends EventEmitter {
         try {
           channels[channel].subscribers.push(subscriber)
         } catch (error) {
-          log('error', 'trying to join channel: ' + channel)
+          logger.error('trying to join channel: ' + channel)
         }
       },
       removeBroker() {
@@ -48,7 +47,7 @@ module.exports = class PubSubManager extends EventEmitter {
         try {
           channels[channel].message.push(message)
         } catch (error) {
-          log(error)
+          logger.error(error)
         }
       },
       broker() {
@@ -62,7 +61,7 @@ module.exports = class PubSubManager extends EventEmitter {
                   for (var i = 0; i < channelObj.message.length; i++) {
                     const string =  JSON.stringify(channelObj.message[i])
                     subscriber.send('{"' + channel +'": ' + string + '}')
-                    //log('{"' + channel +'": ' + string + '}')
+                    //logger.debug('{"' + channel +'": ' + string + '}')
                   }
                 })
 

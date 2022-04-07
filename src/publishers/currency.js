@@ -1,11 +1,8 @@
 'use strict'
 
 const lib = require('xrpl-accountlib')
-const debug = require( 'debug')
 const dotenv = require('dotenv')
-
-const log = debug('oracle:publish')
-const errlog = debug('oracle:error')
+const logger = require('../logger.js');
 
 module.exports = class CurrencyPublisher {
   constructor() {
@@ -16,8 +13,8 @@ module.exports = class CurrencyPublisher {
         if (!('rawResultsNamed' in data)) { return }
         dotenv.config()
 
-        log('GOT DATA')
-        log({data})
+        logger.debug('GOT DATA')
+        logger.debug({data})
 
         const Memos = Object.keys(data.rawResultsNamed).map(k => {
           return {
@@ -52,26 +49,26 @@ module.exports = class CurrencyPublisher {
           },
           Memos
         }
-        // log(Tx)
+        // logger.debug(Tx)
 
-        log('SIGN & SUBMIT')
+        logger.debug('SIGN & SUBMIT')
         try {
           const keypair = lib.derive.familySeed(process.env.XRPL_SOURCE_ACCOUNT_SECRET)
           const {signedTransaction} = lib.sign(Tx, keypair)
           const Signed = await Connection.send({ command: 'submit', 'tx_blob': signedTransaction })
 
-          // log({Signed})
+          // logger.debug({Signed})
           if (Signed.engine_result != 'tesSUCCESS') {
             retry = this.resubmitTx(data, oracle)  
           }
           else {
-            log('Signed ' + data.symbol)
+            logger.debug('Signed ' + data.symbol)
           }
         } catch (e) {
-          errlog(`Error signing / submitting: ${e.message}`)
+          logger.error(`Error signing / submitting: ${e.message}`)
           retry = this.resubmitTx(data, oracle)
         }
-        log('WRAP UP')
+        logger.debug('WRAP UP')
       },
       resubmitTx(data, oracle) {
         // make sure a stuck transaction at somepoint falls off our queue
@@ -81,7 +78,7 @@ module.exports = class CurrencyPublisher {
         data.maxRetry++
         if (data.maxRetry <= 3) {
           oracle.retryPublish(data)
-          errlog('RESUBMIT: ' + data.symbol)
+          logger.warn('RESUBMIT: ' + data.symbol)
         }
       },
       currencyUTF8ToHex(code){
