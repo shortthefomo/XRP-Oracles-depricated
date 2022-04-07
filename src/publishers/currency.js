@@ -39,7 +39,7 @@ module.exports = class CurrencyPublisher {
         const Tx = {
           TransactionType: 'TrustSet',
           Account: process.env.XRPL_SOURCE_ACCOUNT,
-          Fee: '10',
+          Fee: process.env.XRPL_FEE == null ? '10' : process.env.XRPL_FEE,
           Flags: 131072,
           Sequence: sequence,
           LimitAmount: {
