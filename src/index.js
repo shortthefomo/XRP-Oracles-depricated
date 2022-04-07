@@ -63,6 +63,7 @@ class Oracle extends EventEmitter {
     const httpSocket = new SocketServer()
     let oracleData = []
     let runningSince = new Date()
+    let lastPublishedToXrpl = null
     let sourceBalanceDrops = null
 
     Object.assign(this, {
@@ -225,7 +226,7 @@ class Oracle extends EventEmitter {
           }
           let data = { running: true }
           if (password != null && req.query.pwr === password) {
-            data = { running: true, runningSince: runningSince, sourceBalanceDrops: sourceBalanceDrops }
+            data = { running: true, runningSince: runningSince, sourceBalanceDrops: sourceBalanceDrops, lastPublishedToXrpl, lastPublishedToXrpl }
           }
           res.json(data)
         })
@@ -256,6 +257,11 @@ class Oracle extends EventEmitter {
 
           if (process.env.PUBLISH_TO_XRPL === 'true') {
             publisher.publish(client, data, sequence, this)  
+            .then(function() {
+              if(data.transactionHash != null) {
+                lastPublishedToXrpl = new Date()
+              }
+            })
           }
 
           // socket shorld not get retry data

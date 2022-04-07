@@ -63,6 +63,7 @@ module.exports = class CurrencyPublisher {
           }
           else {
             logger.debug('Signed ' + data.symbol)
+            data.transactionHash = Signed.tx_json.hash
           }
         } catch (e) {
           logger.error(`Error signing / submitting: ${e.message}`)
