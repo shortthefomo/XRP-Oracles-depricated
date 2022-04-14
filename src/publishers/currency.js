@@ -10,7 +10,7 @@ const errlog = debug('oracle:error')
 module.exports = class CurrencyPublisher {
   constructor() {
     Object.assign(this, {
-      async publish(Connection, data, sequence, oracle) {
+      async publish(Connection, data, sequence, fee, count, oracle) {
         let retry = null
 
         if (!('rawResultsNamed' in data)) { return }
@@ -42,7 +42,7 @@ module.exports = class CurrencyPublisher {
         const Tx = {
           TransactionType: 'TrustSet',
           Account: process.env.XRPL_SOURCE_ACCOUNT,
-          Fee: '10',
+          Fee: (fee + count).toString(),
           Flags: 131072,
           Sequence: sequence,
           LimitAmount: {
@@ -60,7 +60,7 @@ module.exports = class CurrencyPublisher {
           const {signedTransaction} = lib.sign(Tx, keypair)
           const Signed = await Connection.send({ command: 'submit', 'tx_blob': signedTransaction })
 
-          // log({Signed})
+          log({Signed})
           if (Signed.engine_result != 'tesSUCCESS') {
             retry = this.resubmitTx(data, oracle)  
           }

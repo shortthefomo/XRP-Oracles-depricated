@@ -1,7 +1,6 @@
 'use strict'
 
 const { XrplClient } = require('xrpl-client')
-const { XummSdk } = require('xumm-sdk')
 const app = require('express')()
 const express = require('express')
 const path = require( 'path')
@@ -15,32 +14,31 @@ const currency = require('./publishers/currency.js')
 const dotenv = require('dotenv')
 const axios = require('axios')
 const EventEmitter = require('events')
-const PubSubManager = require('./utilities/pubsub-v2.js')
-const SocketServer = require('./utilities/socket-server.js')
+
 // const rootCas = require('ssl-root-cas').create()
 
 // rootCas.addFile(path.resolve(__dirname, process.env.CERT))
 // rootCas.addFile(path.resolve(__dirname, process.env.KEY))
 
-require('https').globalAgent.options.ca = require('ssl-root-cas').create()
+// require('https').globalAgent.options.ca = require('ssl-root-cas').create()
 
 const log = debug('oracle:main')
 const userlog = debug('oracle:user')
 
 dotenv.config()
 
-let httpsServer = null
-if (process.env.CERT != null) {
-  log('using https: for webhead: ' + process.env.SSLPORT)
-  const sslOptions = {
-      cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
-      key: fs.readFileSync(__dirname + process.env.KEY, 'utf8'),
-      ca: [
-        fs.readFileSync(__dirname + process.env.BUNDLE, 'utf8')
-      ]
-  }
-  httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
-}
+// let httpsServer = null
+// if (process.env.CERT != null) {
+//   log('using https: for webhead: ' + process.env.SSLPORT)
+//   const sslOptions = {
+//       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
+//       key: fs.readFileSync(__dirname + process.env.KEY, 'utf8'),
+//       ca: [
+//         fs.readFileSync(__dirname + process.env.BUNDLE, 'utf8')
+//       ]
+//   }
+//   httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
+// }
 
 log('using http: for webhead: ' + (process.env.PORT))
 const httpServer = http.createServer(app).listen(process.env.PORT)
@@ -54,10 +52,6 @@ class Oracle extends EventEmitter {
     const baseUrl = process.env.BASEURL
     const feedUrl = baseUrl + '/api/feed/data'
     const client = new XrplClient(process.env.ENDPOINT)
-    const Sdk = new XummSdk(process.env.XUMM_APIKEY, process.env.XUMM_APISECRET)
-    const pubsub = new PubSubManager()
-    const httpsSocket = new SocketServer()
-    const httpSocket = new SocketServer()
     let oracleData = []
 
     Object.assign(this, {
@@ -67,9 +61,6 @@ class Oracle extends EventEmitter {
         })
       },
       async start() {
-        pubsub.start()
-        httpsSocket.start(httpsServer, pubsub)
-        httpSocket.start(httpServer, pubsub)
         this.oracleFeed()
         this.startEventLoop()
         this.listenEventLoop()
@@ -121,9 +112,6 @@ class Oracle extends EventEmitter {
           results.meta.push(result)
         }
         log(results)
-        if (pubsub != null) {
-          pubsub.route(results, 'oracles')
-        }
       },
       async oracleFeed() {
         // addresses are oracle-sam and xumm oracle
@@ -190,50 +178,42 @@ class Oracle extends EventEmitter {
             fifo.push(data)
             res.json(data)
         })
-
-        app.get('/api/v2/xumm-sign-in', async function(req, res) {
-          // allow cors through for local testing.
-          if (testing) {
-              // log('allow cors through for local testing')
-              res.header("Access-Control-Allow-Origin", "*")    
-          }
-
-          const data = await self.userSignIn()
-          res.json(data)
-      })
       },
-      sendSocket(data) {
-        const oracle = data.symbol
-        if (oracle in oracleData) {
-          data.previous = oracleData[oracle].previous
+      async LedgerFeeCalculation(debug = false) {
+        const stats = await client.send({
+            "id": 2,
+            "command": "server_state"
+        })
+        const basefee = 10
+        const load_factor = stats.state.load_factor * 1
+        const load_base = stats.state.load_base * 1
+        const current_fee = Math.round((basefee * load_factor) / load_base)
+    
+        if (debug) {
+          log('stats', stats)
+          log('fee-basefee', basefee)
+          log('fee-load_factor', load_factor)
+          log('fee-load_base', load_base)
+          log('fee-calculation', current_fee)
         }
-
-        log('pubsub: ' + data.symbol + ':' + data.type)
-        pubsub.route(data, 'currency')
-
-        if (!(oracle in oracleData)) {
-          oracleData[oracle] = {
-            previous : 0
-          }
-        }
-        oracleData[oracle].previous = data.filteredMedian
+    
+        // we can get a bit more fancy here and add some levels... for when if batch fails multiple times.
+        // https://gist.github.com/WietseWind/3e9f9339f37a5881978a9661f49b0e52
+    
+        return current_fee
       },
       async processFifo(sequence) {
-
         log('PUBLISH DATA fifo length: ' + fifo.length)
-
+        const fee = await this.LedgerFeeCalculation(false)
+        let count = 0
         while(fifo.length > 0) {
           const publisher = new currency()
           const data = fifo.pop()
 
           if (process.env.PUBLISH_TO_XRPL) {
-            publisher.publish(client, data, sequence, this)  
+            publisher.publish(client, data, sequence, fee, count, this)  
           }
 
-          // socket shorld not get retry data
-          if (!('maxRetry' in data)) {
-            this.sendSocket(data)  
-          }
           sequence++
         }
         while(retry.length > 0) {
@@ -242,64 +222,7 @@ class Oracle extends EventEmitter {
       },
       retryPublish(data) {
         retry.push(data)
-      },
-      async userSignIn() {
-				const SignInPayload = {
-					txjson: {
-						TransactionType : 'SignIn'
-					}
-				}
-				//log(SignInPayload)
-
-				const payload = await Sdk.payload.createAndSubscribe(SignInPayload, event => {
-					if (event.data.signed === true) {
-						return event.data
-					}
-
-					if (event.data.signed === false) {
-						return false
-					}
-				})
-        userlog(payload)
-				this.subscriptionListener(payload)
-				
-
-				return payload
-			},
-
-			async subscriptionListener(subscription) {
-				const self = this
-				const resolveData = await subscription.resolved
-
-				if (resolveData.signed === false) { return }
-
-				if (resolveData.signed === true) {
-					userlog('Woohoo! The sign request was signed :)')
-
-					/**
-					 * Let's fetch the full payload end result, and get the issued
-					 * user token, we can use to send our next payload per Push notification
-					 */
-					const result = await Sdk.payload.get(resolveData.payload_uuidv4)
-					
-          userlog(result)
-					// guard clause to make sure we only looking at sign in here
-					if (result.payload.tx_type != 'SignIn') { return }
-          userlog('User token:', result.application.issued_user_token)
-					
-					
-
-					if (pubsub != null) {
-						const info = {
-							'uuid': result.meta.uuid,
-							'tx_type': result.payload.tx_type,
-							'created_at': result.payload.created_at,
-							'account': result.response.account
-						}
-            pubsub.route(info, 'users')
-          }
-				}
-			},
+      }
     })
   }
 }
@@ -307,9 +230,3 @@ class Oracle extends EventEmitter {
 const oracle = new Oracle()
 oracle.createEndPoint(app, process.env.ALLOW_CORS)
 oracle.start()
-
-
-// //server.on('request', app)
-// httpServer.listen(process.env.PORT, () => {
-//    log('Server listening: ' + process.env.PORT)
-// })
