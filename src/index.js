@@ -171,7 +171,7 @@ class Oracle extends EventEmitter {
         app.get('/api/status', async function(req, res) {
           // allow cors through for local testing.
           if (testing) {
-            res.header("Access-Control-Allow-Origin", "*")    
+            res.header("Access-Control-Allow-Origin", "*")
           }
 
           res.json(stats)
@@ -180,7 +180,7 @@ class Oracle extends EventEmitter {
         app.get('/api/feed/data', async function(req, res) {
             // allow cors through for local testing.
             if (testing) {
-              res.header("Access-Control-Allow-Origin", "*")    
+              res.header("Access-Control-Allow-Origin", "*")
             }
 
             const data = await self.fetchData()
@@ -190,7 +190,7 @@ class Oracle extends EventEmitter {
         app.get('/api/aggregator', async function(req, res) {
             // allow cors through for local testing.
             if (testing) {
-              res.header("Access-Control-Allow-Origin", "*")    
+              res.header("Access-Control-Allow-Origin", "*")
             }
 
             if (!('oracle' in req.query)) { return res.json({ 'error' : 'missing parameter oracle'}) }
