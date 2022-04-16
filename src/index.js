@@ -15,7 +15,7 @@ const dotenv = require('dotenv')
 const axios = require('axios')
 const EventEmitter = require('events')
 
-// const rootCas = require('ssl-root-cas').create()
+const rootCas = require('ssl-root-cas').create()
 
 // rootCas.addFile(path.resolve(__dirname, process.env.CERT))
 // rootCas.addFile(path.resolve(__dirname, process.env.KEY))
@@ -27,18 +27,18 @@ const userlog = debug('oracle:user')
 
 dotenv.config()
 
-// let httpsServer = null
-// if (process.env.CERT != null) {
-//   log('using https: for webhead: ' + process.env.SSLPORT)
-//   const sslOptions = {
-//       cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
-//       key: fs.readFileSync(__dirname + process.env.KEY, 'utf8'),
-//       ca: [
-//         fs.readFileSync(__dirname + process.env.BUNDLE, 'utf8')
-//       ]
-//   }
-//   httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
-// }
+let httpsServer = null
+if (process.env.CERT != null) {
+  log('using https: for webhead: ' + process.env.SSLPORT)
+  const sslOptions = {
+      cert: fs.readFileSync(__dirname + process.env.CERT, 'utf8'),
+      key: fs.readFileSync(__dirname + process.env.KEY, 'utf8'),
+      ca: [
+        fs.readFileSync(__dirname + process.env.BUNDLE, 'utf8')
+      ]
+  }
+  httpsServer = https.createServer(sslOptions, app).listen(process.env.SSLPORT)   
+}
 
 log('using http: for webhead: ' + (process.env.PORT))
 const httpServer = http.createServer(app).listen(process.env.PORT)
