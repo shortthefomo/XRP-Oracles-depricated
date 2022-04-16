@@ -53,6 +53,14 @@ class Oracle extends EventEmitter {
     const feedUrl = baseUrl + '/api/feed/data'
     const client = new XrplClient(process.env.ENDPOINT)
     let oracleData = []
+    let runningSince = new Date()
+    const stats = {
+      started: new Date(),
+      last_published: null,
+      submissions_since_start: 0,
+      source_balance: 0,
+      last_error: {}
+    }
 
     Object.assign(this, {
       async run(oracle) {
@@ -69,7 +77,7 @@ class Oracle extends EventEmitter {
         client.on('ledger', async (event) =>  {
           if (event.type == 'ledgerClosed') {
             const { account_data } = await client.send({ command: 'account_info', account: process.env.XRPL_SOURCE_ACCOUNT })
-            //log(account_data)
+            stats.source_balance = account_data.Balance
             if (account_data != null && 'Sequence' in account_data) {
               this.processFifo(account_data.Sequence)  
             }
@@ -131,11 +139,17 @@ class Oracle extends EventEmitter {
       startEventLoop() {
         const self = this
         this.addListener('oracle-fetch', async function() {
-          let { data }  = await axios.get(feedUrl)
-          const keys = Object.keys(data)
-          for(let oracle of keys) {
-            // log(oracle)
-            self.processData(oracle)
+          try {
+            let { data }  = await axios.get(feedUrl)
+            const keys = Object.keys(data)
+            for(let oracle of keys) {
+              // log(oracle)
+              self.processData(oracle)
+            }
+          } catch (error) {
+            if(error.code == 'ETIMEDOUT') {
+              log(`Timeout calling ${feedUrl}`)
+            }
           }
         })
       },
@@ -154,6 +168,15 @@ class Oracle extends EventEmitter {
       },
       async createEndPoint(app, testing = false) {
         const self = this
+        app.get('/api/status', async function(req, res) {
+          // allow cors through for local testing.
+          if (testing) {
+            res.header("Access-Control-Allow-Origin", "*")    
+          }
+
+          res.json(stats)
+      })
+
         app.get('/api/feed/data', async function(req, res) {
             // allow cors through for local testing.
             if (testing) {
@@ -210,8 +233,11 @@ class Oracle extends EventEmitter {
           const publisher = new currency()
           const data = fifo.pop()
 
-          if (process.env.PUBLISH_TO_XRPL) {
-            publisher.publish(client, data, sequence, fee, count, this)  
+          if (process.env.PUBLISH_TO_XRPL === 'true') {
+            // typically one would wait for the XRPL response.
+            // however we dont wait here as we are batching transactions into a single ledger.
+            // also we are not overly concernd with failures, we do retry failed transactions but dont overly push them.
+            publisher.publish(client, data, sequence, fee, count, stats, this)
           }
 
           sequence++

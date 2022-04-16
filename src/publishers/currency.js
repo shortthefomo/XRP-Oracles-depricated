@@ -10,7 +10,7 @@ const errlog = debug('oracle:error')
 module.exports = class CurrencyPublisher {
   constructor() {
     Object.assign(this, {
-      async publish(Connection, data, sequence, fee, count, oracle) {
+      async publish(Connection, data, sequence, fee, count, stats, oracle) {
         let retry = null
 
         if (!('rawResultsNamed' in data)) { return }
@@ -62,10 +62,13 @@ module.exports = class CurrencyPublisher {
 
           log({Signed})
           if (Signed.engine_result != 'tesSUCCESS') {
-            retry = this.resubmitTx(data, oracle)  
+            stats.last_error = Signed.engine_result
+            retry = this.resubmitTx(data, oracle)
           }
           else {
             log('Signed ' + data.symbol)
+            stats.last_published = new Date()
+            stats.submissions_since_start ++
           }
         } catch (e) {
           errlog(`Error signing / submitting: ${e.message}`)
